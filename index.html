@@ -1,0 +1,1884 @@
+<title>Daily Sales Activities</title>
+<style>
+:root{
+  --ink:#1b2027;
+  --ink-soft:#5b6472;
+  --bg:#eef1f1;
+  --surface:#ffffff;
+  --surface-2:#f4f6f6;
+  --border:#dde2e2;
+  --accent:#1f6f6a;
+  --accent-strong:#144e4a;
+  --accent-soft:#e2f0ee;
+  --gold:#b8873a;
+  --good:#2f8f5b;
+  --good-soft:#e5f3ea;
+  --warn:#c98a2c;
+  --warn-soft:#faf0dd;
+  --bad:#b4483f;
+  --bad-soft:#fbe9e7;
+  --new:#3b6ea5;
+  --new-soft:#e7f0f9;
+  --muted:#8a93a0;
+  --muted-soft:#eceef1;
+  --shadow:0 1px 2px rgba(20,30,30,.06), 0 4px 14px rgba(20,30,30,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#eef2f2;
+    --ink-soft:#a7b1b6;
+    --bg:#10161a;
+    --surface:#1a2226;
+    --surface-2:#212b2f;
+    --border:#2c383c;
+    --accent:#59c2b8;
+    --accent-strong:#8fe0d6;
+    --accent-soft:rgba(89,194,184,.14);
+    --gold:#dbab5e;
+    --good:#57c087;
+    --good-soft:rgba(87,192,135,.14);
+    --warn:#e3ab52;
+    --warn-soft:rgba(227,171,82,.14);
+    --bad:#e2766a;
+    --bad-soft:rgba(226,118,106,.14);
+    --new:#79aee0;
+    --new-soft:rgba(121,174,224,.14);
+    --muted:#8e99a3;
+    --muted-soft:rgba(142,153,163,.14);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.28);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#eef2f2;
+  --ink-soft:#a7b1b6;
+  --bg:#10161a;
+  --surface:#1a2226;
+  --surface-2:#212b2f;
+  --border:#2c383c;
+  --accent:#59c2b8;
+  --accent-strong:#8fe0d6;
+  --accent-soft:rgba(89,194,184,.14);
+  --gold:#dbab5e;
+  --good:#57c087;
+  --good-soft:rgba(87,192,135,.14);
+  --warn:#e3ab52;
+  --warn-soft:rgba(227,171,82,.14);
+  --bad:#e2766a;
+  --bad-soft:rgba(226,118,106,.14);
+  --new:#79aee0;
+  --new-soft:rgba(121,174,224,.14);
+  --muted:#8e99a3;
+  --muted-soft:rgba(142,153,163,.14);
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.28);
+}
+
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Sarabun","IBM Plex Sans Thai",-apple-system,sans-serif;
+  font-size:14px;line-height:1.55;}
+h1,h2,h3{font-family:"IBM Plex Sans Thai","Sarabun",sans-serif;text-wrap:balance;margin:0;}
+.tnum{font-variant-numeric:tabular-nums;}
+a{color:inherit;}
+.wrap{max-width:1360px;margin:0 auto;padding:18px 20px 48px;}
+
+/* header */
+.topbar{background:linear-gradient(155deg,var(--accent-strong),var(--accent));
+  color:#f4fbfa;border-radius:14px;padding:20px 24px;box-shadow:var(--shadow);
+  display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-bottom:18px;}
+.brand-eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.78;margin-bottom:4px;}
+.brand-title{font-size:24px;font-weight:700;}
+.brand-sub{font-size:12.5px;opacity:.85;margin-top:4px;max-width:52ch;}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.filters label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.8;display:block;margin-bottom:3px;}
+.filter-group{display:flex;flex-direction:column;}
+.filters select{padding:7px 10px;border-radius:7px;border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.12);color:#fff;font:inherit;font-size:13px;min-width:132px;}
+.filters select option{color:#1b2027;background:#fff;}
+.btn{border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.14);color:#fff;
+  padding:8px 14px;border-radius:7px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+.btn:hover{background:rgba(255,255,255,.24);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.data-badge{font-size:11.5px;padding:6px 10px;border-radius:20px;background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.28);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.data-badge.busy{background:rgba(255,255,255,.26);animation:badge-pulse 1.1s ease-in-out infinite;}
+@keyframes badge-pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+.actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.import-stack{display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:9px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);}
+.btn-sm{padding:6px 12px;font-size:12.5px;justify-content:center;}
+.btn-guide{background:rgba(255,255,255,.2);}
+.btn-danger{border-color:rgba(255,140,130,.55);color:#ffe1dd;}
+.btn-danger:hover{background:rgba(255,90,80,.28);}
+
+.btn2{padding:8px 16px;border-radius:7px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;
+  border:1px solid var(--border);background:var(--surface-2);color:var(--ink);}
+.btn2:hover{background:var(--muted-soft);}
+.btn2.danger{background:var(--bad);border-color:var(--bad);color:#fff;}
+.btn2.danger:hover{filter:brightness(1.08);}
+.confirm-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+
+/* kpis */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:16px;}
+.kpi-card{background:var(--surface);border-radius:12px;padding:18px 20px;box-shadow:var(--shadow);
+  border-top:3px solid var(--accent);}
+.kpi-card.gold{border-top-color:var(--gold);}
+.kpi-card.clickable{cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.kpi-card.clickable:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(20,30,30,.09), 0 8px 20px rgba(20,30,30,.09);}
+.kpi-card.clickable:hover .kpi-value{color:var(--accent-strong);}
+.kpi-label{font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.kpi-value{font-size:30px;font-weight:700;line-height:1;}
+.kpi-value small{font-size:16px;font-weight:600;color:var(--ink-soft);}
+.kpi-sub{margin-top:8px;font-size:12.5px;color:var(--ink-soft);}
+.kpi-sub b{color:var(--ink);font-weight:600;}
+
+/* charts */
+.chart-row{display:grid;grid-template-columns:1.1fr 1fr 1.2fr;gap:14px;margin-bottom:16px;}
+.card{background:var(--surface);border-radius:12px;padding:18px 20px;box-shadow:var(--shadow);}
+.card h3{font-size:14px;font-weight:600;margin-bottom:2px;}
+.card .card-note{font-size:11.5px;color:var(--ink-soft);margin-bottom:12px;}
+.chart-holder{position:relative;height:230px;}
+
+/* rep table */
+.section-title{font-size:16px;font-weight:700;margin:26px 0 10px;display:flex;align-items:center;gap:8px;}
+.section-title .count-pill{font-size:11.5px;font-weight:600;background:var(--accent-soft);color:var(--accent-strong);
+  padding:2px 9px;border-radius:20px;}
+:root[data-theme="dark"] .section-title .count-pill,
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .section-title .count-pill{color:var(--accent-strong);}}
+
+.table-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;padding:9px 12px;border-bottom:2px solid var(--border);color:var(--ink-soft);
+  font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+.num-col{text-align:right;font-variant-numeric:tabular-nums;}
+.num-col.clickable{cursor:pointer;border-radius:5px;transition:background .12s,color .12s;}
+.num-col.clickable:hover{background:var(--accent-soft);color:var(--accent-strong);}
+.rep-bar{display:flex;height:7px;border-radius:4px;overflow:hidden;background:var(--muted-soft);margin-top:5px;min-width:90px;}
+.rep-bar span{height:100%;}
+.rep-mini{display:flex;gap:10px;flex-wrap:wrap;font-size:11.8px;font-weight:600;}
+.rep-mini span{display:inline-flex;align-items:center;gap:4px;cursor:pointer;padding:2px 5px;border-radius:5px;
+  transition:background .12s;}
+.rep-mini span:hover{background:var(--surface-2);}
+.rep-mini .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none;}
+
+/* drill-down modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(10,14,14,.5);z-index:50;
+  display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-backdrop[hidden]{display:none;}
+.modal-panel{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);
+  width:100%;max-width:920px;max-height:82vh;display:flex;flex-direction:column;overflow:hidden;}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  padding:16px 20px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-count{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+.modal-close{border:none;background:var(--surface-2);color:var(--ink-soft);width:30px;height:30px;
+  border-radius:50%;font-size:15px;cursor:pointer;flex:none;line-height:1;}
+.modal-close:hover{background:var(--muted-soft);color:var(--ink);}
+.modal-body{padding:14px 20px 20px;overflow-y:auto;}
+.modal-body .detail-row td{font-size:12.3px;}
+
+/* import guide */
+.guide-intro{font-size:13px;color:var(--ink-soft);margin-bottom:16px;}
+.guide-steps{display:flex;flex-direction:column;gap:14px;}
+.guide-step{border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;}
+.guide-step h4{display:flex;align-items:center;gap:9px;font-size:13.5px;margin:0 0 10px;}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;flex:none;
+  display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+.field-row{display:flex;gap:10px;font-size:12.8px;margin-bottom:7px;align-items:baseline;flex-wrap:wrap;}
+.field-row:last-child{margin-bottom:0;}
+.field-label{min-width:100px;color:var(--ink-soft);font-weight:600;flex:none;}
+.field-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.field-chip{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);
+  border:1px solid var(--border);border-radius:6px;padding:2px 9px;font-size:12px;}
+.field-chip::before{content:"✕";font-size:9px;color:var(--ink-soft);}
+.guide-step.outbound .step-num{background:var(--gold);}
+.guide-arrow{text-align:center;color:var(--ink-soft);font-size:12px;margin:2px 0;}
+
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap;}
+.pill.good{background:var(--good-soft);color:var(--good);}
+.pill.warn{background:var(--warn-soft);color:var(--warn);}
+.pill.bad{background:var(--bad-soft);color:var(--bad);}
+.pill.new{background:var(--new-soft);color:var(--new);}
+.pill.muted{background:var(--muted-soft);color:var(--ink-soft);}
+.grade-badge{display:inline-block;min-width:20px;text-align:center;padding:2px 6px;border-radius:5px;
+  background:var(--surface-2);border:1px solid var(--border);font-weight:700;font-size:11.5px;}
+
+.log-card{margin-bottom:16px;}
+.log-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.search-box{padding:7px 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);
+  color:var(--ink);font:inherit;font-size:13px;min-width:220px;}
+.search-box::placeholder{color:var(--ink-soft);}
+.detail-link{color:var(--accent);font-weight:600;cursor:pointer;font-size:12.5px;text-decoration:underline;
+  text-underline-offset:2px;background:none;border:none;font-family:inherit;padding:0;}
+.detail-row td{background:var(--surface-2);white-space:pre-line;color:var(--ink-soft);font-size:12.8px;}
+.name-cell{font-weight:600;}
+.name-cell .sub{font-weight:400;color:var(--ink-soft);font-size:11.8px;}
+.empty-note{padding:20px;text-align:center;color:var(--ink-soft);font-size:13px;}
+
+.log-foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+  margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12.5px;color:var(--ink-soft);}
+.page-controls{display:flex;align-items:center;gap:8px;}
+.page-size-select{padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface-2);
+  color:var(--ink);font:inherit;font-size:12.5px;}
+.page-btn{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--surface-2);
+  color:var(--ink);cursor:pointer;font-size:13px;line-height:1;}
+.page-btn:disabled{opacity:.4;cursor:not-allowed;}
+.page-btn:not(:disabled):hover{background:var(--accent-soft);color:var(--accent-strong);}
+.page-num{font-variant-numeric:tabular-nums;white-space:nowrap;}
+
+.footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;color:var(--ink-soft);font-size:12px;}
+.footer a{text-decoration:underline;}
+
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:var(--bg);padding:11px 18px;
+  border-radius:9px;font-size:13px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);
+  transition:opacity .2s,transform .2s;pointer-events:none;z-index:40;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+@media (max-width:880px){
+  .chart-row{grid-template-columns:1fr;}
+  .kpi-row{grid-template-columns:repeat(2,1fr);}
+}
+@media (prefers-reduced-motion:reduce){.toast{transition:none;} .data-badge.busy{animation:none;}}
+</style>
+
+<div class="wrap">
+
+  <header class="topbar">
+    <div>
+      <div class="brand-eyebrow">AssetWise · Sales Operations</div>
+      <h1 class="brand-title">Daily Sales Activities</h1>
+      <div class="brand-sub">ติดตาม Lead Inbound ที่เข้ามาใหม่ ผลการติดตามกลับ และการโทรออก Outbound หา Lead เก่า ของทีมขายแต่ละวัน</div>
+    </div>
+    <div class="filters">
+      <div class="filter-group">
+        <label for="f-date">วันที่</label>
+        <select id="f-date"></select>
+      </div>
+      <div class="filter-group">
+        <label for="f-project">โครงการ</label>
+        <select id="f-project"></select>
+      </div>
+      <div class="filter-group">
+        <label for="f-rep">พนักงานขาย</label>
+        <select id="f-rep"></select>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-guide" id="guide-btn" type="button">📘 คู่มือนำเข้าไฟล์</button>
+      <div class="import-stack">
+        <button class="btn btn-sm" id="upload-both-btn" type="button" title="เลือกไฟล์ Lead_Inbound.xlsx และ Lead_Outbound.xlsx พร้อมกันได้เลย">⬆ นำเข้า Inbound &amp; Outbound</button>
+        <input type="file" id="upload-both-input" accept=".xlsx,.xls" multiple hidden>
+        <button class="btn btn-sm btn-danger" id="clear-data-btn" type="button" title="ลบข้อมูลกิจกรรมทั้งหมดออกจากฐานข้อมูลที่แชร์">🗑 เคลียร์ข้อมูล</button>
+      </div>
+      <span class="data-badge" id="data-badge">กำลังโหลด…</span>
+    </div>
+  </header>
+
+  <section class="kpi-row">
+    <div class="kpi-card clickable" id="kpi-card-inbound" title="คลิกเพื่อดูรายชื่อ Lead Inbound ทั้งหมด">
+      <div class="kpi-label">Lead Inbound เข้ามารายวัน</div>
+      <div class="kpi-value tnum" id="kpi-inbound">–</div>
+      <div class="kpi-sub" id="kpi-inbound-sub">แยกตามโครงการ</div>
+    </div>
+    <div class="kpi-card clickable" id="kpi-card-followed" title="คลิกเพื่อดูรายชื่อ Lead ที่ติดตามแล้ว">
+      <div class="kpi-label">ติดตาม Lead Inbound แล้ว</div>
+      <div class="kpi-value tnum" id="kpi-followed">–</div>
+      <div class="kpi-sub" id="kpi-followed-sub">มีผลการติดต่อกลับ</div>
+    </div>
+    <div class="kpi-card clickable" id="kpi-card-outbound-old" title="คลิกเพื่อดูรายชื่อ Lead เก่าที่โทรออก">
+      <div class="kpi-label">โทรออกติดตาม Lead เก่า</div>
+      <div class="kpi-value tnum" id="kpi-outbound-old">–</div>
+      <div class="kpi-sub" id="kpi-outbound-old-sub">นอกเหนือจาก Lead ที่เข้าวันนี้</div>
+    </div>
+    <div class="kpi-card gold clickable" id="kpi-card-won" title="คลิกเพื่อดูรายชื่อดีลที่ปิดการขาย">
+      <div class="kpi-label">ปิดการขายวันนี้</div>
+      <div class="kpi-value tnum" id="kpi-won">–</div>
+      <div class="kpi-sub" id="kpi-won-sub">จากการติดตามทุกช่องทาง</div>
+    </div>
+  </section>
+
+  <section class="chart-row">
+    <div class="card">
+      <h3>Lead Inbound รายวันตามโครงการ</h3>
+      <div class="card-note">จำนวน Lead ขาเข้าใหม่ในช่วงที่เลือก</div>
+      <div class="chart-holder"><canvas id="chart-project"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>สถานะการติดตาม Lead Inbound</h3>
+      <div class="card-note">ผลลัพธ์หลังโทร/แชทกลับหา Lead ที่เข้ามา</div>
+      <div class="chart-holder"><canvas id="chart-status"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>ผลการติดต่อ Outbound แยกตามพนักงาน</h3>
+      <div class="card-note">รวมทั้ง Lead ใหม่ที่ตามต่อ และ Lead เก่าที่โทรออก</div>
+      <div class="chart-holder"><canvas id="chart-rep"></canvas></div>
+    </div>
+  </section>
+
+  <div class="section-title">ผลงานพนักงานขายรายวัน <span class="count-pill" id="rep-count-pill">0 คน</span></div>
+  <div class="card table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>พนักงานขาย</th>
+          <th class="num-col">ติดตาม Lead ใหม่</th>
+          <th class="num-col">ติดตาม Lead เก่า</th>
+          <th class="num-col">รวมการติดต่อ</th>
+          <th class="num-col">ปิดการขาย</th>
+          <th class="num-col">ติดตามต่อ</th>
+          <th class="num-col">หลุด</th>
+          <th>สัดส่วนผลลัพธ์</th>
+        </tr>
+      </thead>
+      <tbody id="rep-table-body"></tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Lead Inbound รายวัน &amp; ผลการติดตาม <span class="count-pill" id="inbound-count-pill">0 รายการ</span></div>
+  <div class="card log-card">
+    <div class="log-head">
+      <div class="card-note" style="margin:0">คลิก “รายละเอียด” เพื่อดูบันทึกเต็มของแต่ละราย</div>
+      <input type="text" class="search-box" id="inbound-search" placeholder="ค้นหาชื่อลูกค้า / โครงการ">
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>เวลา</th><th>โครงการ</th><th>ลูกค้า</th><th>เกรด</th><th>ช่องทางเข้ามา</th><th>สถานะติดตาม</th><th>พนักงานที่ติดตาม</th><th></th></tr>
+        </thead>
+        <tbody id="inbound-table-body"></tbody>
+      </table>
+    </div>
+    <div class="log-foot" id="inbound-pagination"></div>
+  </div>
+
+  <div class="section-title">Outbound: ติดตาม Lead เก่า <span class="count-pill" id="outbound-count-pill">0 รายการ</span></div>
+  <div class="card log-card">
+    <div class="log-head">
+      <div class="card-note" style="margin:0">การโทรออกที่ไม่ใช่ Lead Inbound ของวันที่เลือก</div>
+      <input type="text" class="search-box" id="outbound-search" placeholder="ค้นหาชื่อลูกค้า / โครงการ">
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>เวลา</th><th>โครงการ</th><th>ลูกค้า</th><th>เกรด</th><th>ช่องทางติดต่อ</th><th>สถานะ</th><th>พนักงานขาย</th><th></th></tr>
+        </thead>
+        <tbody id="outbound-table-body"></tbody>
+      </table>
+    </div>
+    <div class="log-foot" id="outbound-pagination"></div>
+  </div>
+
+  <div class="footer">
+    <span>วิธีคำนวณ “ติดตามแล้ว”: จับคู่ Lead Inbound กับบันทึก Outbound ที่มีรหัสลูกค้าและวันที่ตรงกัน หากไม่พบบันทึก Outbound จะถือว่ายังไม่ถูกติดตาม (เว้นแต่ปิดเคสไว้ในบันทึกแรกเข้า)</span>
+    <span id="footer-updated">–</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-backdrop" id="modal-backdrop" hidden>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="modal-title">รายละเอียด</div>
+        <div class="modal-count" id="modal-count"></div>
+      </div>
+      <button class="modal-close" id="modal-close" type="button" aria-label="ปิด">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="guide-backdrop" hidden>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="guide-title">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="guide-title">คู่มือนำเข้าไฟล์ประจำวัน</div>
+        <div class="modal-count">Export จากหน้า Contact Log แล้วนำเข้าที่แดชบอร์ดนี้</div>
+      </div>
+      <button class="modal-close" id="guide-close" type="button" aria-label="ปิด">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="guide-intro">ทำตาม 3 ขั้นตอนนี้ทุกวัน เพื่อนำข้อมูล Lead Inbound และ Outbound ของวันนั้นเข้าสู่แดชบอร์ด</div>
+      <div class="guide-steps">
+        <div class="guide-step inbound">
+          <h4><span class="step-num">1</span> Export ไฟล์ Inbound จากหน้า Contact Log</h4>
+          <div class="field-row"><span class="field-label">Project</span><span>เลือกโครงการที่ต้องการ</span></div>
+          <div class="field-row"><span class="field-label">Contat Date / To</span><span>ตั้งเป็นวันที่ต้องการดึงข้อมูล (เช่น วันเดียวกันทั้งสองช่อง สำหรับข้อมูลรายวัน)</span></div>
+          <div class="field-row"><span class="field-label">Channel</span>
+            <span class="field-chips">
+              <span class="field-chip">Inbound</span>
+              <span class="field-chip">Web Site</span>
+              <span class="field-chip">Contact Center</span>
+            </span>
+          </div>
+          <div class="field-row"><span class="field-label">View Type</span><span>Transaction</span></div>
+          <div class="field-row"><span class="field-label">กดปุ่ม</span><span>Display แล้วตามด้วย <b>Export Excel</b> — ได้ไฟล์ Lead Inbound</span></div>
+        </div>
+        <div class="guide-step outbound">
+          <h4><span class="step-num">2</span> Export ไฟล์ Outbound จากหน้าเดิม</h4>
+          <div class="field-row"><span class="field-label">Project / วันที่</span><span>ใช้ค่าเดียวกับขั้นตอนที่ 1</span></div>
+          <div class="field-row"><span class="field-label">Channel</span>
+            <span class="field-chips"><span class="field-chip">Outbound</span></span>
+          </div>
+          <div class="field-row"><span class="field-label">View Type</span><span>Transaction</span></div>
+          <div class="field-row"><span class="field-label">กดปุ่ม</span><span>Display แล้วตามด้วย <b>Export Excel</b> — ได้ไฟล์ Lead Outbound</span></div>
+        </div>
+        <div class="guide-step">
+          <h4><span class="step-num">3</span> นำเข้าไฟล์เข้าแดชบอร์ดนี้</h4>
+          <div class="field-row"><span class="field-label">ขั้นตอน</span><span>กดปุ่ม “⬆ นำเข้า Inbound &amp; Outbound” มุมขวาบนของหน้านี้ แล้วเลือกไฟล์ทั้งสองพร้อมกันในหน้าต่างเดียว ระบบแยกประเภทให้อัตโนมัติ</span></div>
+          <div class="field-row"><span class="field-label">หมายเหตุ</span><span>นำเข้าไฟล์เดิมซ้ำได้อย่างปลอดภัย ระบบจะอัปเดตทับรายการเดิมโดยไม่สร้างข้อมูลซ้ำ</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="confirm-backdrop" hidden>
+  <div class="modal-panel" style="max-width:440px" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-head">
+      <div class="modal-title" id="confirm-title">ยืนยันการเคลียร์ข้อมูล</div>
+      <button class="modal-close" id="confirm-close" type="button" aria-label="ปิด">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="confirm-message" style="font-size:13.5px;color:var(--ink-soft);"></div>
+      <div class="confirm-actions">
+        <button class="btn2" id="confirm-cancel" type="button">ยกเลิก</button>
+        <button class="btn2 danger" id="confirm-ok" type="button">ยืนยันเคลียร์ข้อมูล</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ---------- fallback sample data (used only if the shared DB is unavailable) ---------- */
+const SAMPLE_DATA = [
+ {
+  "id": "75_544278_2026-09-09_20:23_inbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "544278",
+  "customerName": "Mimi_544278 OSA_544278",
+  "grade": "D",
+  "channelName": "Inbound",
+  "contactType": "Instagram",
+  "activity": "",
+  "detail": "#Instagram Maroon Ratchada32 :  (ลูกค้าต่างชาติ) สนใจเช่า ไม่มีงบประมาณ สนใจ 1 ห้องนอน สอบถามเกี่ยวกับเงื่อนไขประเภทวิซ่า และช่องทางการชำระค่าเช่า / สอบถามข้อมูลแล้วไม่ตอบกลับ ขอปิดเคสค่ะ",
+  "date": "2026-09-09",
+  "time": "20:23",
+  "followUp": "Yes",
+  "createBy": "sukhontakarn.p -",
+  "source": "inbound"
+ },
+ {
+  "id": "75_188669_2026-09-09_16:53_inbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "188669",
+  "customerName": "Pangpond Alisa",
+  "grade": "F",
+  "channelName": "Web Site",
+  "contactType": "Register",
+  "activity": "",
+  "detail": "RP_Maroon Ratchada 32_CheckInterest",
+  "date": "2026-09-09",
+  "time": "16:53",
+  "followUp": "Yes",
+  "createBy": "WebSite API",
+  "source": "inbound"
+ },
+ {
+  "id": "75_544183_2026-09-09_12:48_inbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "544183",
+  "customerName": "Kittipon Wangphon",
+  "grade": "C",
+  "channelName": "Web Site",
+  "contactType": "Register",
+  "activity": "",
+  "detail": "RP_Maroon Ratchada 32_CheckInterest",
+  "date": "2026-09-09",
+  "time": "12:48",
+  "followUp": "Yes",
+  "createBy": "WebSite API",
+  "source": "inbound"
+ },
+ {
+  "id": "104_544169_2026-09-09_12:41_inbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "544169",
+  "customerName": "พลอยนภัส (พลอยแหวน) ใจเชื่อม",
+  "grade": "C",
+  "channelName": "Contact Center",
+  "contactType": "Inbound",
+  "activity": "",
+  "detail": "นัดหมายเข้าเยี่ยมชมโครงการตามวันและเวลาที่ระบุ\n\nยังไม่ระบุงบประมาณ และรูปแบบห้องที่สนใจเนื่องจากต้องการเข้าเยี่ยมชมเพื่อพิจารณาค่ะ\n\nรบกวนเจ้าหน้าที่ฝ่ายขายเตรียมต้อนรับนะคะ\n\nขอบคุณค่ะ",
+  "date": "2026-09-09",
+  "time": "12:41",
+  "followUp": "Yes",
+  "createBy": "ContactCenter API",
+  "source": "inbound"
+ },
+ {
+  "id": "75_544182_2026-09-09_12:25_inbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "544182",
+  "customerName": "จักรชัย เวียงกมล",
+  "grade": "C",
+  "channelName": "Web Site",
+  "contactType": "Register",
+  "activity": "",
+  "detail": "RP_Maroon Ratchada 32_CheckInterest",
+  "date": "2026-09-09",
+  "time": "12:25",
+  "followUp": "Yes",
+  "createBy": "WebSite API",
+  "source": "inbound"
+ },
+ {
+  "id": "75_544152_2026-09-09_10:08_inbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "544152",
+  "customerName": "Araya I",
+  "grade": "C",
+  "channelName": "Web Site",
+  "contactType": "Register",
+  "activity": "",
+  "detail": "RP_Maroon Ratchada 32_CheckInterest",
+  "date": "2026-09-09",
+  "time": "10:08",
+  "followUp": "Yes",
+  "createBy": "WebSite API",
+  "source": "inbound"
+ },
+ {
+  "id": "75_544127_2026-09-09_09:20_inbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "544127",
+  "customerName": "Amittra Angkanon สะดวกให้ติดต่อผ่านทางไลน์ diizzgroup.",
+  "grade": "C",
+  "channelName": "Web Site",
+  "contactType": "Register",
+  "activity": "",
+  "detail": "[Submit: 105029] FormID: 42717 - Page: Maroon Ratchada 32 (https:&#047;&#047;assetwise.co.th&#047;condominium&#047;maroonratchada32&#047;)",
+  "date": "2026-09-09",
+  "time": "09:20",
+  "followUp": "Yes",
+  "createBy": "WebSite API",
+  "source": "inbound"
+ },
+ {
+  "id": "104_540201_2026-09-09_08:20_inbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "540201",
+  "customerName": "Chutima Inthamat",
+  "grade": "C",
+  "channelName": "Web Site",
+  "contactType": "Register",
+  "activity": "",
+  "detail": "VNE_FB_Leadgen",
+  "date": "2026-09-09",
+  "time": "08:20",
+  "followUp": "Yes",
+  "createBy": "WebSite API",
+  "source": "inbound"
+ },
+ {
+  "id": "104_478356_2026-09-09_03:51_inbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "478356",
+  "customerName": "Krisana Phijarana",
+  "grade": "C",
+  "channelName": "Web Site",
+  "contactType": "Register",
+  "activity": "",
+  "detail": "VNE_FB_Leadgen",
+  "date": "2026-09-09",
+  "time": "03:51",
+  "followUp": "Yes",
+  "createBy": "WebSite API",
+  "source": "inbound"
+ },
+ {
+  "id": "104_544106_2026-09-09_02:54_inbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "544106",
+  "customerName": "Witayotin Boonkan",
+  "grade": "C",
+  "channelName": "Web Site",
+  "contactType": "Register",
+  "activity": "",
+  "detail": "0",
+  "date": "2026-09-09",
+  "time": "02:54",
+  "followUp": "Yes",
+  "createBy": "WebSite API",
+  "source": "inbound"
+ },
+ {
+  "id": "104_544121_2026-09-09_01:10_inbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "544121",
+  "customerName": "นเรศ จันทร์แจ้ง",
+  "grade": "C",
+  "channelName": "Web Site",
+  "contactType": "Register",
+  "activity": "",
+  "detail": "VNE_FB_Leadgen",
+  "date": "2026-09-09",
+  "time": "01:10",
+  "followUp": "Yes",
+  "createBy": "WebSite API",
+  "source": "inbound"
+ },
+ {
+  "id": "75_544075_2026-09-09_17:28_outbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "544075",
+  "customerName": "Yusuf Sadisu Ibrahim_544075 OSA_544075",
+  "grade": "D",
+  "channelName": "Outbound",
+  "contactType": "Facebook",
+  "activity": "(D) Lost / Chat สอบถามไม่ตอบกลับ / ไม่มีช่องทางติดต่อกลับ",
+  "detail": "ไม่มีช่องทางติดต่อกลับ",
+  "date": "2026-09-09",
+  "time": "17:28",
+  "followUp": "None",
+  "createBy": "สุภารัตน์ ชุมพงศ์",
+  "source": "outbound"
+ },
+ {
+  "id": "75_538892_2026-09-09_17:27_outbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "538892",
+  "customerName": "6690262091 OSA_538892",
+  "grade": "F",
+  "channelName": "Outbound",
+  "contactType": "Facebook",
+  "activity": "(F) Lost / สนใจเช่า/AAP",
+  "detail": "เช่า\r\nCall  out 1 ลูกค้าสนใจเช่า",
+  "date": "2026-09-09",
+  "time": "17:27",
+  "followUp": "None",
+  "createBy": "สุภารัตน์ ชุมพงศ์",
+  "source": "outbound"
+ },
+ {
+  "id": "75_544093_2026-09-09_17:26_outbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "544093",
+  "customerName": "Ziv Levi_544093 OSA_544093",
+  "grade": "D",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(D) Lost / Chat สอบถามไม่ตอบกลับ / ไม่มีช่องทางติดต่อกลับ",
+  "detail": "ไม่มีช่องทางติดต่อกลับ",
+  "date": "2026-09-09",
+  "time": "17:26",
+  "followUp": "None",
+  "createBy": "สุภารัตน์ ชุมพงศ์",
+  "source": "outbound"
+ },
+ {
+  "id": "75_544127_2026-09-09_17:25_outbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "544127",
+  "customerName": "Amittra Angkanon สะดวกให้ติดต่อผ่านทางไลน์ diizzgroup.",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / ไม่สะดวกคุยสาย",
+  "detail": "Call Out 1 // ไม่สะดวกคุยสาย",
+  "date": "2026-09-09",
+  "time": "17:25",
+  "followUp": "Yes",
+  "createBy": "สุภารัตน์ ชุมพงศ์",
+  "source": "outbound"
+ },
+ {
+  "id": "104_139180_2026-09-09_16:49_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "139180",
+  "customerName": "กนกศักดิ์ พรมกามินทร์",
+  "grade": "A",
+  "channelName": "Outbound",
+  "contactType": "Visit Site",
+  "activity": "(A) Close / จองแล้ว",
+  "detail": "Call 1 9/9/69 ลูกค้าคุยกับพี่ชายเเล้วเห็นด้วย จึงตัดสินใจโอนเงินมาจองห้อง A0516 ไว้อยู่อาศัยค่ะ\r\nลูกค้าทักเข้ามาสอบถามรายละเอียดผ่านทาง OSA เเละสนใจนัดหมายเข้ามาชมโครงการวันนี้ เพราะมีเเพลนอยากซื้อคอนโดใกล้ที่ทำงาน ไว้อยู่อาศัยเอง ปัจจุบันทำงานเเถวลาดพร้าว เเละพักอาศัยอยู่บ้านกับครอบครัวที่ดอนเมือง เริ่มเดินทางไม่ไหว จึงเข้ามาขอชมห้องตัวอย่าง พาชมห้องตัวอย่างเเละส่วนกลาง ลูกค้าสนใจห้องโปร 2.29 ล้านบาท เสนอห้อง A0516 A0631 B0517 ลูกค้าสนใจห้อง A0516  B0517 เเต่ยังตัดสินใจเลยคนเดียวไม่ได้ เพราะซื้อครั้งนี้เป็นบ้านหลังที่ 2 อยากกู้ร่วมกับพี่ชายเพราะกลัวว่าคนเดียวจะผ่อนไม่ไหว จึงขอใบราคาเเละโปรโมชั่นห้อง B0517 A0516 กลับไปคุยกับพี่ชายก่อนเเละจะให้คำตอบพรุ่งนี้ว่าตัดสินใจซื้อที่นี่เลยไหม จึงขอเเอดไลน์เพื่อส่งรูปห้องจริงให้ลูกค้านำไปคุยกับพี่ชายเพิ่มเติมเพื่อประการตัดสินใจ Profile พนักงานบริษัทรายได้ 60,000 บาท  มีภาระผ่อนบ้าน 1 หลัง เดือนละ 20,000 บาท บัตรเครดิตเดือน 10,000 บาท",
+  "date": "2026-09-09",
+  "time": "16:49",
+  "followUp": "None",
+  "createBy": "รัตนา คงซัง",
+  "source": "outbound"
+ },
+ {
+  "id": "104_478356_2026-09-09_16:07_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "478356",
+  "customerName": "Krisana Phijarana",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / สอบถามข้อมูลโครงการ",
+  "detail": "Call out1/  ลค  พักอยู่แถวปทุมธนานี ปี 25  มีการลงทะเบียนมาแต่เบอร์ขึ้นยังไม่เปิดให้บริการ ลูกค้าแจ้งว่า อยู่อิตาลี เพิ่งกลับมาไทยไม่ถึงเดือน  ลงทะเบียน โครงการไว้ดูไว้ลงทุนปล่อยเช่า งบประมาณยังไม่ได้ตั้ง    แจ้งว่าลงทะเบียนหลายโครงการ จำข้อมูลไม่ได้ สะดวกให้ส่งข้อมูลให้ทาง whatsapp    เรียนเชิญมาชมห้องตัวอย่าง วันเสาร์นี้ ลค แจ้งว่าขอดูเวลาก่อน   จะคอนเฟิมอีกที วันศุกร์ \r\n\r\n\r\n=============================\r\nVNE_FB_Leadgen  CALL  OUT1/ เบอร์ยังไม่เปิดให้บริการ",
+  "date": "2026-09-09",
+  "time": "16:07",
+  "followUp": "Yes",
+  "createBy": "ฐณัฎนันธ์ ทรัพย์มิตร",
+  "source": "outbound"
+ },
+ {
+  "id": "104_540201_2026-09-09_15:54_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "540201",
+  "customerName": "Chutima Inthamat",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / สอบถามข้อมูลโครงการ",
+  "detail": "VNE_FB_Leadgen// Call1 สนใจดูไว้ลงทุนปล่อยเช่า ยังไม่ได้ตั้งงบประมาณการซื้อ ปัจจุบันพักอาศัยอยู่จังหวัดอุบล เเจ้งรายละเอียดราคาเเบบห้อง เเละเชิญลูกค้าเข้าร่วมงานวันที่ 12-13/9/69 นี้ เเต่ลูกค้ายังไม่มีเเพลนจะมารังสิต เเต่สนใจจึงขอเเอดไลน์ส่งรายละเอียดให้เพิ่มทางไลน์ (เเอดไลน์ลูกค้าเรียบร้อยค่ะ)",
+  "date": "2026-09-09",
+  "time": "15:54",
+  "followUp": "Yes",
+  "createBy": "รัตนา คงซัง",
+  "source": "outbound"
+ },
+ {
+  "id": "104_543999_2026-09-09_15:51_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "543999",
+  "customerName": "Vunnare Kunawut_543999 OSA_543999",
+  "grade": "D",
+  "channelName": "Outbound",
+  "contactType": "Facebook",
+  "activity": "(D) Lost / Chat สอบถามไม่ตอบกลับ / ไม่มีช่องทางติดต่อกลับ",
+  "detail": "Call out 1 : ไม่มีช่องทางการติดต่อกลับ ",
+  "date": "2026-09-09",
+  "time": "15:51",
+  "followUp": "None",
+  "createBy": "ภัทร์นรินทร์ ธกรกัณยาวีร์",
+  "source": "outbound"
+ },
+ {
+  "id": "104_544100_2026-09-09_15:47_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "544100",
+  "customerName": "Bell_544100 OSA_544100",
+  "grade": "D",
+  "channelName": "Outbound",
+  "contactType": "Line",
+  "activity": "(D) Lost / Chat สอบถามไม่ตอบกลับ / ไม่มีช่องทางติดต่อกลับ",
+  "detail": "Call out 1 : ไม่มีช่องทางตอบกลับ ",
+  "date": "2026-09-09",
+  "time": "15:47",
+  "followUp": "None",
+  "createBy": "ภัทร์นรินทร์ ธกรกัณยาวีร์",
+  "source": "outbound"
+ },
+ {
+  "id": "104_280245_2026-09-09_15:46_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "280245",
+  "customerName": "🌙月云☁️_280245 OSA_280245",
+  "grade": "F",
+  "channelName": "Outbound",
+  "contactType": "Line",
+  "activity": "(F) Lost / ติดต่อเรื่อง อื่นๆ",
+  "detail": "ลูกค้าสอบถาม ได้ข้อมูลแล้ว ปิดเคส OSA",
+  "date": "2026-09-09",
+  "time": "15:46",
+  "followUp": "None",
+  "createBy": "ภัทร์นรินทร์ ธกรกัณยาวีร์",
+  "source": "outbound"
+ },
+ {
+  "id": "104_543400_2026-09-09_15:46_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "543400",
+  "customerName": "พลอยแหวน OSA_543400",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Line",
+  "activity": "(C) Pending / สอบถามข้อมูลโครงการ",
+  "detail": "ลูกค้าเข้่ชมโครงการเเล้ว\r\nไม่มีช่องทางการติดต่อ",
+  "date": "2026-09-09",
+  "time": "15:46",
+  "followUp": "None",
+  "createBy": "รัตนา คงซัง",
+  "source": "outbound"
+ },
+ {
+  "id": "104_544033_2026-09-09_15:42_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "544033",
+  "customerName": "ทหาร ผ่านศึก",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / สอบถามข้อมูลโครงการ",
+  "detail": "Call Out 2 : สอบถามรายละเอียดโครงการ ราคาเริ่มต้น  ดูไว้ให้ลูกกำลังเรียน ม.กรุงเทพ ปี 1 เช่าอยู่ KAVE TOWN  ปัจจุบันพักสมุทรปราการ แถวบางปู เบื้องต้นแจ้งรายละเอียดเพิ่มเติมแล้ว ลูกค้าสอบถามเรื่องสินเชื่อเพิ่มเติมทำธุรกิจส่วนตัว ขายของเก่า รายได้ 100K บาท เบื้องต้นเสนองาน  finance day ให้ลองนำเอกสารมาปรึกษาพร้อมโปรโมชั่นพิเศษในงาน ลูกค้าขอรายละเอียดทางไลน์ก่อนหากสะดวกจะแวะเข้ามาค่ะ \r\n\r\nCall Out 1 : ติดต่อ 2 ครั้งไม่รับสาย",
+  "date": "2026-09-09",
+  "time": "15:42",
+  "followUp": "Yes",
+  "createBy": "ภัทร์นรินทร์ ธกรกัณยาวีร์",
+  "source": "outbound"
+ },
+ {
+  "id": "104_544121_2026-09-09_15:42_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "544121",
+  "customerName": "นเรศ จันทร์แจ้ง",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / สอบถามข้อมูลโครงการ",
+  "detail": "Call Out 1 : สอบถามรายละเอียดโครงการ ราคาเริ่มต้น สนใตดูไว้ลงทุน เบื้องต้นแจ้งรายละเอียดเพิ่มเติมเรทค่าเช่า และเสนอโปร GV เสาร์-อาทิตย์ นี้ ลูกค้าแจ้งว่าขอศึกษารายละเอียดเองก่อน ถ้าสะดวกจะเข้ามาอีกที เบื้องต้นให้โทร CF ศุกร์นี้ ",
+  "date": "2026-09-09",
+  "time": "15:42",
+  "followUp": "Yes",
+  "createBy": "ภัทร์นรินทร์ ธกรกัณยาวีร์",
+  "source": "outbound"
+ },
+ {
+  "id": "104_544106_2026-09-09_15:33_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "544106",
+  "customerName": "Witayotin Boonkan",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / ไม่สะดวกคุยสาย",
+  "detail": "Call Out1/ รับสายถามว่ามีปัญหาอะไร โทรมาทำไม  แจ้งติดต่อจากโครงการ ลูกค้าไม่สะดวกคุยสาย จึงขอ ติดต่อใหม่ภายหลัง",
+  "date": "2026-09-09",
+  "time": "15:33",
+  "followUp": "Yes",
+  "createBy": "ฐณัฎนันธ์ ทรัพย์มิตร",
+  "source": "outbound"
+ },
+ {
+  "id": "75_544183_2026-09-09_14:47_outbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "544183",
+  "customerName": "Kittipon Wangphon",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / สอบถามข้อมูลโครงการ",
+  "detail": "Call Out 1 // ลูกค้าสอบถามข้อมูลโครงการ ราคาโปรโมชั่น เงื่อนไขการยื่นกู้ รูปแบบห้อง ทำเลที่ตั้งของโครงการ ถ้าสะดวกแจ้งนัดหมายเข้ามาอีกครั้ง",
+  "date": "2026-09-09",
+  "time": "14:47",
+  "followUp": "Yes",
+  "createBy": "สุภารัตน์ ชุมพงศ์",
+  "source": "outbound"
+ },
+ {
+  "id": "75_544152_2026-09-09_14:46_outbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "544152",
+  "customerName": "Araya I",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / สอบถามข้อมูลโครงการ",
+  "detail": "Call Out 1 // ลูกค้าสนใจดูไว้อยู่เอง แจ้งว่าทำงานอยู่เอกมัย พักอาศัยอยู่กับพี่แถวลาดพร้าว วังหิน สอบถามเงื่อนไขในการยื่นกู้ เรียนเชิญและแจ้งโปรโมชั่นให้เข้ามาชมโครงการ ลูกค้ายังไม่สะดวกเข้ามาค่ะ",
+  "date": "2026-09-09",
+  "time": "14:46",
+  "followUp": "Yes",
+  "createBy": "สุภารัตน์ ชุมพงศ์",
+  "source": "outbound"
+ },
+ {
+  "id": "75_544182_2026-09-09_14:46_outbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "544182",
+  "customerName": "จักรชัย เวียงกมล",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / สอบถามข้อมูลโครงการ",
+  "detail": "Call Out 1 // ลูกค้าสนดูไว้อยู่เอง สอบถามทำเลที่ตั้งของโครงการรูปแบบห้อง ราคาเริ่มต้น โปรโมชั่นของโครงการ ไม่สะดวกให้แอดไลน์ขอดูข้อมูลผ่านทางเว็ปไซต์เอง",
+  "date": "2026-09-09",
+  "time": "14:46",
+  "followUp": "Yes",
+  "createBy": "สุภารัตน์ ชุมพงศ์",
+  "source": "outbound"
+ },
+ {
+  "id": "75_544124_2026-09-09_14:45_outbound",
+  "projectId": "75",
+  "projectCode": "102C027",
+  "projectName": "มารูน รัชดา",
+  "customerId": "544124",
+  "customerName": "Ps.bin:) Tawan",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / ไม่สะดวกคุยสาย",
+  "detail": "Call Out 1 // ลูกค้าไม่สะดวกคุยสาย แจ้งว่ามีเรียนทุกวัน ให้ติดต่อกลับมาใหม่วันอาทิตย์นี้",
+  "date": "2026-09-09",
+  "time": "14:45",
+  "followUp": "Yes",
+  "createBy": "สุภารัตน์ ชุมพงศ์",
+  "source": "outbound"
+ },
+ {
+  "id": "104_543990_2026-09-09_13:38_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "543990",
+  "customerName": "รับขนมจีบ เพิ่มมั้ยคะ",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / สอบถามข้อมูลโครงการ",
+  "detail": "call out1/  ลค พักอยู่ แถวพระราม 9  ลงทะเบียน สนใจดูไว้ปล่อยเช่า ตั้งงบ ไม่เกิน 2 ล้าน   เรียนเขิญเข้าชมห้องตัวอย่าง ในวันอีเว้นท์เสาร์ อาทิตย์นี้ นัดหมายรับ GV  ลค แจ้งว่า ยังไม่สะดวกเนื่องจากติดงาน  แจ้งสะดวกให้ส่งข้อมูล เพิ่มเติมให้ทางไลน์ไว้ก่อน ",
+  "date": "2026-09-09",
+  "time": "13:38",
+  "followUp": "Yes",
+  "createBy": "ฐณัฎนันธ์ ทรัพย์มิตร",
+  "source": "outbound"
+ },
+ {
+  "id": "104_544032_2026-09-09_11:32_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "544032",
+  "customerName": "รัตนาภรณ์ พรมขุนทอง",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / ไม่รับสาย",
+  "detail": "Call 1 ลูกค้ายังไม่รับสาย จะติดต่อกลับไปอีกครั้งค่ะ   เเอดไลน์ตามไอดีที่ให้ไว้ไม่ขึ้น (SMS แนะนำไว้เรียบร้อยค่ะ)",
+  "date": "2026-09-09",
+  "time": "11:32",
+  "followUp": "Yes",
+  "createBy": "รัตนา คงซัง",
+  "source": "outbound"
+ },
+ {
+  "id": "104_516552_2026-09-09_11:25_outbound",
+  "projectId": "104",
+  "projectCode": "128C001",
+  "projectName": "เควาลอน",
+  "customerId": "516552",
+  "customerName": "Red Arrow",
+  "grade": "C",
+  "channelName": "Outbound",
+  "contactType": "Register",
+  "activity": "(C) Pending / ไม่รับสาย",
+  "detail": "VNE_FB_Leadgen // Call 1 ลูกค้ายังไม่รับสาย จะติดต่อกลับไปอีกครั้งค่ะ (SMS แนะนำไว้เรียบร้อยค่ะ)",
+  "date": "2026-09-09",
+  "time": "11:25",
+  "followUp": "Yes",
+  "createBy": "รัตนา คงซัง",
+  "source": "outbound"
+ }
+];
+
+/* ---------- helpers ---------- */
+function sanitizeId(s){ return String(s).replace(/[^A-Za-z0-9_\-.~:@+]/g, "_"); }
+function buildRowId(r){ return sanitizeId(r.projectId+"_"+r.customerId+"_"+r.date+"_"+r.time+"_"+r.source); }
+function cleanName(s){ return (s || "").toString().trim(); }
+
+function isDarkMode(){
+  const t = document.documentElement.getAttribute("data-theme");
+  if (t === "dark") return true;
+  if (t === "light") return false;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function categoricalColor(i){
+  const dark = isDarkMode();
+  const hue = (172 + i * 47) % 360;
+  const sat = 42, light = dark ? 62 : 40;
+  return `hsl(${hue} ${sat}% ${light}%)`;
+}
+
+function parseActivity(activity){
+  if (!activity) return null;
+  const m = /^\(([A-Za-z])\)\s*([^/]+?)\s*\/\s*([\s\S]*)$/.exec(activity.trim());
+  if (!m) return { grade: "", label: "อื่นๆ", reason: activity, key: "other" };
+  const labelRaw = m[2].trim().toLowerCase();
+  let key = "other", label = m[2].trim();
+  if (labelRaw.startsWith("close")) { key = "close"; label = "ปิดการขาย"; }
+  else if (labelRaw.startsWith("pending")) { key = "pending"; label = "ติดตามต่อ"; }
+  else if (labelRaw.startsWith("lost")) { key = "lost"; label = "หลุด/ปิดเคส"; }
+  return { grade: m[1], label, reason: m[3].trim(), key };
+}
+const STATUS_META = {
+  close:  { pill: "good", chip: "var(--good)" },
+  pending:{ pill: "warn", chip: "var(--warn)" },
+  lost:   { pill: "bad",  chip: "var(--bad)" },
+  other:  { pill: "muted",chip: "var(--muted)" },
+  closed_intake:{ pill:"muted", chip:"var(--muted)" },
+  awaiting:{ pill:"new", chip:"var(--new)" }
+};
+function fmtTime(t){ return t || "-"; }
+function truncate(s, n){ s = s || ""; return s.length > n ? s.slice(0, n) + "…" : s; }
+function esc(s){
+  return (s == null ? "" : String(s)).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* ---------- normalize an uploaded / seeded raw excel row ---------- */
+function normalizeRawRow(r){
+  const channelName = r.ContactChannelName || "";
+  const source = channelName === "Outbound" ? "outbound" : "inbound";
+  const row = {
+    projectId: String(r.ProjectID || ""),
+    projectCode: r.ProjectCode || "",
+    projectName: r.ProjectName || "",
+    customerId: String(r.CustomerID || ""),
+    customerName: (cleanName(r.CustomerFirstName) + " " + cleanName(r.CustomerLastName)).trim(),
+    grade: r.CustomerGrade || "",
+    channelName,
+    contactType: r.ContactType || "",
+    activity: r.ContactActivity || "",
+    detail: (r.ContactDetail || "").toString(),
+    date: r.ContactDate || "",
+    time: r.ContactTime || "",
+    followUp: r.FollowUp || "",
+    createBy: cleanName(r.CreateBy),
+    source
+  };
+  row.id = buildRowId(row);
+  return row;
+}
+
+/* ---------- state ---------- */
+let ACTIVITIES = [];
+let dbApi = null;
+let filters = { date: "all", project: "all", rep: "all" };
+const charts = {};
+
+/* ---------- chart data-label plugin (no external deps) ---------- */
+Chart.register({
+  id: "valueLabels",
+  afterDatasetsDraw(chart){
+    const { ctx } = chart;
+    const isDoughnut = chart.config.type === "doughnut";
+    const stacked = chart.data.datasets.length > 1 && !isDoughnut;
+    ctx.save();
+    ctx.font = "700 11px Sarabun, -apple-system, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    chart.data.datasets.forEach((dataset, dIdx) => {
+      const meta = chart.getDatasetMeta(dIdx);
+      if (meta.hidden) return;
+      meta.data.forEach((el, i) => {
+        const val = dataset.data[i];
+        if (!val) return;
+        if (isDoughnut){
+          const pos = el.tooltipPosition();
+          ctx.fillStyle = "#fff";
+          ctx.fillText(String(val), pos.x, pos.y);
+        } else if (stacked){
+          if (Math.abs(el.base - el.y) < 13) return;
+          ctx.fillStyle = "#fff";
+          ctx.fillText(String(val), el.x, (el.y + el.base) / 2);
+        } else {
+          ctx.fillStyle = cssVar("--ink");
+          ctx.fillText(String(val), el.x, el.y - 11);
+        }
+      });
+    });
+    ctx.restore();
+  }
+});
+
+/* ---------- drill-down modal ---------- */
+let DRILL_REGISTRY = {};
+let drillSeq = 0;
+function registerDrill(rows){
+  const key = "d" + (drillSeq++);
+  DRILL_REGISTRY[key] = rows;
+  return key;
+}
+function rowListHtml(rows, kind){
+  if (!rows.length) return `<div class="empty-note">ไม่มีข้อมูลตามเงื่อนไขนี้</div>`;
+  const sorted = rows.slice().sort((a,b)=> (b.date+b.time).localeCompare(a.date+a.time));
+  const head = kind === "inbound"
+    ? `<tr><th>เวลา</th><th>โครงการ</th><th>ลูกค้า</th><th>เกรด</th><th>ช่องทางเข้ามา</th><th>สถานะติดตาม</th><th>ผู้ติดตาม</th></tr>`
+    : `<tr><th>เวลา</th><th>โครงการ</th><th>ลูกค้า</th><th>เกรด</th><th>ช่องทางติดต่อ</th><th>สถานะ</th><th>พนักงาน</th></tr>`;
+  const body = sorted.map(r => {
+    const pill = kind === "inbound" ? statusPillHtml(r) : outboundPillHtml(r);
+    const rep = kind === "inbound" ? (r.followRep || "—") : (r.createBy || "—");
+    const detail = kind === "inbound" ? (r.followDetail || r.detail || "-") : (r.detail || "-");
+    return `<tr>
+        <td class="tnum">${esc(fmtTime(r.time))}</td>
+        <td>${esc(r.projectName)}</td>
+        <td class="name-cell">${esc(r.customerName)}</td>
+        <td><span class="grade-badge">${esc(r.grade||"-")}</span></td>
+        <td>${esc(r.contactType || r.channelName || "-")}</td>
+        <td>${pill}</td>
+        <td>${esc(rep)}</td>
+      </tr>
+      <tr class="detail-row"><td colspan="7">${esc(detail)}</td></tr>`;
+  }).join("");
+  return `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+}
+function openDrillDown(title, rows, kind){
+  document.getElementById("modal-title").textContent = title;
+  document.getElementById("modal-count").textContent = rows.length + " รายการ";
+  document.getElementById("modal-body").innerHTML = `<div class="table-scroll">${rowListHtml(rows, kind)}</div>`;
+  document.getElementById("modal-backdrop").hidden = false;
+}
+function closeDrillDown(){ document.getElementById("modal-backdrop").hidden = true; }
+document.getElementById("modal-close").addEventListener("click", closeDrillDown);
+document.getElementById("modal-backdrop").addEventListener("click", e => {
+  if (e.target.id === "modal-backdrop") closeDrillDown();
+});
+
+/* ---------- import guide ---------- */
+function openGuide(){ document.getElementById("guide-backdrop").hidden = false; }
+function closeGuide(){ document.getElementById("guide-backdrop").hidden = true; }
+document.getElementById("guide-btn").addEventListener("click", openGuide);
+document.getElementById("guide-close").addEventListener("click", closeGuide);
+document.getElementById("guide-backdrop").addEventListener("click", e => {
+  if (e.target.id === "guide-backdrop") closeGuide();
+});
+
+/* ---------- confirm dialog ---------- */
+function openConfirm(message, onOk){
+  document.getElementById("confirm-message").textContent = message;
+  document.getElementById("confirm-backdrop").hidden = false;
+  const okBtn = document.getElementById("confirm-ok");
+  const handler = async () => {
+    okBtn.removeEventListener("click", handler);
+    closeConfirm();
+    await onOk();
+  };
+  okBtn.addEventListener("click", handler);
+}
+function closeConfirm(){ document.getElementById("confirm-backdrop").hidden = true; }
+document.getElementById("confirm-close").addEventListener("click", closeConfirm);
+document.getElementById("confirm-cancel").addEventListener("click", closeConfirm);
+document.getElementById("confirm-backdrop").addEventListener("click", e => {
+  if (e.target.id === "confirm-backdrop") closeConfirm();
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  closeDrillDown();
+  closeGuide();
+  closeConfirm();
+});
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-drill]");
+  if (!el) return;
+  const rows = DRILL_REGISTRY[el.dataset.drill] || [];
+  openDrillDown(el.dataset.title || "รายละเอียด", rows, el.dataset.kind || "outbound");
+});
+
+/* ---------- derived computation ---------- */
+function computeDerived(rows){
+  const inbound = rows.filter(r => r.source === "inbound");
+  const outbound = rows.filter(r => r.source === "outbound");
+
+  // index outbound by customerId+date -> list, sorted by time
+  const obByKey = new Map();
+  outbound.forEach(o => {
+    const k = o.customerId + "|" + o.date;
+    if (!obByKey.has(k)) obByKey.set(k, []);
+    obByKey.get(k).push(o);
+  });
+
+  const inboundEnriched = inbound.map(r => {
+    const key = r.customerId + "|" + r.date;
+    const matches = (obByKey.get(key) || []).slice().sort((a,b)=> a.time.localeCompare(b.time));
+    if (matches.length){
+      const latest = matches[matches.length-1];
+      const parsed = parseActivity(latest.activity) || { key:"other", label:"อื่นๆ" };
+      return Object.assign({}, r, {
+        followStatusKey: parsed.key,
+        followStatusLabel: parsed.label,
+        followRep: latest.createBy,
+        followDetail: latest.detail,
+        followContacts: matches.length,
+        matched: true
+      });
+    }
+    if (/ปิดเคส/.test(r.detail)){
+      return Object.assign({}, r, {
+        followStatusKey: "closed_intake",
+        followStatusLabel: "ปิดเคสจากทักครั้งแรก",
+        followRep: r.createBy,
+        followDetail: r.detail,
+        followContacts: 0,
+        matched: false
+      });
+    }
+    return Object.assign({}, r, {
+      followStatusKey: "awaiting",
+      followStatusLabel: "รอติดตามครั้งแรก",
+      followRep: "",
+      followDetail: "",
+      followContacts: 0,
+      matched: false
+    });
+  });
+
+  const inboundKeySet = new Set(inbound.map(r => r.customerId + "|" + r.date));
+  const outboundEnriched = outbound.map(r => {
+    const isNewLead = inboundKeySet.has(r.customerId + "|" + r.date);
+    const parsed = parseActivity(r.activity) || { key:"other", label:"อื่นๆ" };
+    return Object.assign({}, r, {
+      isNewLead,
+      statusKey: parsed.key,
+      statusLabel: parsed.label
+    });
+  });
+
+  return { inboundEnriched, outboundEnriched };
+}
+
+/* ---------- filtering ---------- */
+function applyFilters(rows){
+  return rows.filter(r => {
+    if (filters.date !== "all" && r.date !== filters.date) return false;
+    if (filters.project !== "all" && r.projectName !== filters.project) return false;
+    if (filters.rep !== "all"){
+      const rep = r.source === "inbound" ? (r.followRep || r.createBy) : r.createBy;
+      if (rep !== filters.rep) return false;
+    }
+    return true;
+  });
+}
+
+/* ---------- populate filter dropdowns ---------- */
+function populateFilters(){
+  const dates = [...new Set(ACTIVITIES.map(r => r.date))].filter(Boolean).sort().reverse();
+  const projects = [...new Set(ACTIVITIES.map(r => r.projectName))].filter(Boolean).sort();
+  const reps = [...new Set(ACTIVITIES.filter(r=>r.source==="outbound").map(r => r.createBy))].filter(Boolean).sort();
+
+  const dateSel = document.getElementById("f-date");
+  const prevDate = dateSel.value || (dates[0] || "all");
+  dateSel.innerHTML = dates.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join("");
+  dateSel.value = dates.includes(filters.date) ? filters.date : (dates.includes(prevDate) ? prevDate : (dates[0]||"all"));
+  filters.date = dateSel.value || "all";
+
+  const projSel = document.getElementById("f-project");
+  projSel.innerHTML = `<option value="all">ทุกโครงการ</option>` + projects.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join("");
+  projSel.value = projects.includes(filters.project) ? filters.project : "all";
+
+  const repSel = document.getElementById("f-rep");
+  repSel.innerHTML = `<option value="all">ทุกคน</option>` + reps.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join("");
+  repSel.value = reps.includes(filters.rep) ? filters.rep : "all";
+}
+
+/* ---------- rendering ---------- */
+function render(){
+  DRILL_REGISTRY = {}; drillSeq = 0;
+  const { inboundEnriched, outboundEnriched } = computeDerived(ACTIVITIES);
+  const inbound = applyFilters(inboundEnriched);
+  const outbound = applyFilters(outboundEnriched);
+  const outboundOld = outbound.filter(r => !r.isNewLead);
+  const outboundNew = outbound.filter(r => r.isNewLead);
+
+  renderKpis(inbound, outbound, outboundOld);
+  renderProjectChart(inbound);
+  renderStatusChart(inbound);
+  renderRepChart(outbound);
+  renderRepTable(outboundNew, outboundOld);
+  renderInboundTable(inbound, document.getElementById("inbound-search").value.trim().toLowerCase());
+  renderOutboundTable(outboundOld, document.getElementById("outbound-search").value.trim().toLowerCase());
+}
+
+function renderKpis(inbound, outbound, outboundOld){
+  document.getElementById("kpi-inbound").textContent = inbound.length;
+  const byProject = {};
+  inbound.forEach(r => byProject[r.projectName] = (byProject[r.projectName]||0)+1);
+  document.getElementById("kpi-inbound-sub").textContent = Object.entries(byProject)
+    .map(([k,v]) => `${k} ${v}`).join(" · ") || "ไม่มี Lead ในช่วงนี้";
+
+  const followed = inbound.filter(r => r.matched).length;
+  const pct = inbound.length ? Math.round(followed/inbound.length*100) : 0;
+  document.getElementById("kpi-followed").innerHTML = `${followed}<small> / ${inbound.length}</small>`;
+  document.getElementById("kpi-followed-sub").innerHTML = `คิดเป็น <b>${pct}%</b> ของ Lead ที่เข้ามา`;
+
+  document.getElementById("kpi-outbound-old").textContent = outboundOld.length;
+  const reps = new Set(outboundOld.map(r=>r.createBy));
+  document.getElementById("kpi-outbound-old-sub").innerHTML = outboundOld.length
+    ? `โดยพนักงาน <b>${reps.size}</b> คน` : "ไม่มีการโทรออก Lead เก่าในช่วงนี้";
+
+  const won = outbound.filter(r => r.statusKey === "close").length;
+  document.getElementById("kpi-won").textContent = won;
+  document.getElementById("kpi-won-sub").textContent = won ? "ยอดเยี่ยม — ติดตามใบจองต่อ" : "ยังไม่มีการปิดการขายในช่วงนี้";
+
+  document.getElementById("kpi-card-inbound").onclick = () =>
+    openDrillDown("Lead Inbound ทั้งหมด", inbound, "inbound");
+  document.getElementById("kpi-card-followed").onclick = () =>
+    openDrillDown("Lead Inbound ที่ติดตามแล้ว", inbound.filter(r => r.matched), "inbound");
+  document.getElementById("kpi-card-outbound-old").onclick = () =>
+    openDrillDown("โทรออกติดตาม Lead เก่า", outboundOld, "outbound");
+  document.getElementById("kpi-card-won").onclick = () =>
+    openDrillDown("ปิดการขายวันนี้", outbound.filter(r => r.statusKey === "close"), "outbound");
+}
+
+function destroyChart(key){ if (charts[key]) { charts[key].destroy(); charts[key] = null; } }
+
+function renderProjectChart(inbound){
+  destroyChart("project");
+  const counts = {};
+  inbound.forEach(r => counts[r.projectName] = (counts[r.projectName]||0)+1);
+  const labels = Object.keys(counts);
+  const ctx = document.getElementById("chart-project").getContext("2d");
+  if (!labels.length){ charts.project = null; return; }
+  charts.project = new Chart(ctx, {
+    type: "bar",
+    data: { labels, datasets: [{ data: labels.map(l=>counts[l]), backgroundColor: labels.map((_,i)=>categoricalColor(i)), borderRadius: 6, maxBarThickness: 46 }] },
+    options: {
+      responsive:true, maintainAspectRatio:false, layout:{ padding:{ top: 16 } },
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.parsed.y} ราย`}} },
+      scales:{ x:{ grid:{display:false}, ticks:{color: cssVar("--ink-soft")} },
+        y:{ beginAtZero:true, ticks:{precision:0, color: cssVar("--ink-soft")}, grid:{color: cssVar("--border")} } },
+      onHover:(evt, els) => { evt.native.target.style.cursor = els.length ? "pointer" : "default"; },
+      onClick:(evt, els) => {
+        if (!els.length) return;
+        const project = labels[els[0].index];
+        openDrillDown(`Lead Inbound: ${project}`, inbound.filter(r => r.projectName === project), "inbound");
+      }
+    }
+  });
+}
+
+function renderStatusChart(inbound){
+  destroyChart("status");
+  const order = ["close","pending","lost","closed_intake","awaiting"];
+  const labelMap = { close:"ปิดการขาย", pending:"ติดตามต่อ", lost:"หลุด/ปิดเคส", closed_intake:"ปิดเคสแรกทัก", awaiting:"รอติดตามครั้งแรก" };
+  const colorMap = { close:"var(--good)", pending:"var(--warn)", lost:"var(--bad)", closed_intake:"var(--muted)", awaiting:"var(--new)" };
+  const counts = {}; order.forEach(k=>counts[k]=0);
+  inbound.forEach(r => counts[r.followStatusKey] = (counts[r.followStatusKey]||0)+1);
+  const keys = order.filter(k => counts[k] > 0);
+  const ctx = document.getElementById("chart-status").getContext("2d");
+  if (!keys.length){ charts.status = null; return; }
+  charts.status = new Chart(ctx, {
+    type: "doughnut",
+    data:{ labels: keys.map(k=>labelMap[k]), datasets:[{ data: keys.map(k=>counts[k]), backgroundColor: keys.map(k=>cssVar(colorMap[k].replace("var(","").replace(")","")) || colorMap[k]), borderColor: cssVar("--surface"), borderWidth:2 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:"62%",
+      plugins:{ legend:{ position:"right", labels:{ color: cssVar("--ink-soft"), boxWidth:11, padding:10, usePointStyle:true } },
+        tooltip:{ callbacks:{ label:c=>{ const tot=c.dataset.data.reduce((a,b)=>a+b,0); return ` ${c.label}: ${c.parsed} (${Math.round(c.parsed/tot*100)}%)`; } } } },
+      onHover:(evt, els) => { evt.native.target.style.cursor = els.length ? "pointer" : "default"; },
+      onClick:(evt, els) => {
+        if (!els.length) return;
+        const key = keys[els[0].index];
+        openDrillDown(`Lead Inbound: ${labelMap[key]}`, inbound.filter(r => r.followStatusKey === key), "inbound");
+      }
+    }
+  });
+}
+
+function renderRepChart(outbound){
+  destroyChart("rep");
+  const reps = [...new Set(outbound.map(r=>r.createBy))].filter(Boolean).sort();
+  const statusKeys = ["close","pending","lost"];
+  const labelMap = { close:"ปิดการขาย", pending:"ติดตามต่อ", lost:"หลุด/ปิดเคส" };
+  const colorMap = { close:"--good", pending:"--warn", lost:"--bad" };
+  const ctx = document.getElementById("chart-rep").getContext("2d");
+  if (!reps.length){ charts.rep = null; return; }
+  const datasets = statusKeys.map(k => ({
+    label: labelMap[k],
+    data: reps.map(rep => outbound.filter(r=>r.createBy===rep && r.statusKey===k).length),
+    backgroundColor: cssVar(colorMap[k]),
+    borderRadius: 4,
+    maxBarThickness: 34
+  }));
+  charts.rep = new Chart(ctx, {
+    type:"bar",
+    data:{ labels: reps, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:"top", labels:{ color: cssVar("--ink-soft"), boxWidth:11, usePointStyle:true } } },
+      scales:{ x:{ stacked:true, grid:{display:false}, ticks:{color: cssVar("--ink-soft"), autoSkip:false, maxRotation:0, font:{size:10.5} } },
+        y:{ stacked:true, beginAtZero:true, ticks:{precision:0, color: cssVar("--ink-soft")}, grid:{color: cssVar("--border")} } },
+      onHover:(evt, els) => { evt.native.target.style.cursor = els.length ? "pointer" : "default"; },
+      onClick:(evt, els) => {
+        if (!els.length) return;
+        const rep = reps[els[0].index];
+        const statusKey = statusKeys[els[0].datasetIndex];
+        openDrillDown(`${rep} · ${labelMap[statusKey]}`, outbound.filter(r => r.createBy === rep && r.statusKey === statusKey), "outbound");
+      }
+    }
+  });
+}
+
+function renderRepTable(outboundNew, outboundOld){
+  const all = outboundNew.concat(outboundOld);
+  const reps = [...new Set(all.map(r=>r.createBy))].filter(Boolean).sort();
+  document.getElementById("rep-count-pill").textContent = reps.length + " คน";
+  const tbody = document.getElementById("rep-table-body");
+  if (!reps.length){ tbody.innerHTML = `<tr><td colspan="8" class="empty-note">ไม่มีข้อมูลการติดต่อในช่วงที่เลือก</td></tr>`; return; }
+  tbody.innerHTML = reps.map(rep => {
+    const mine = all.filter(r=>r.createBy===rep);
+    const newRows = mine.filter(r=>r.isNewLead);
+    const oldRows = mine.filter(r=>!r.isNewLead);
+    const closeRows = mine.filter(r=>r.statusKey==="close");
+    const pendingRows = mine.filter(r=>r.statusKey==="pending");
+    const lostRows = mine.filter(r=>r.statusKey==="lost");
+    const total = mine.length || 1;
+    const cell = (rows, label) =>
+      `data-drill="${registerDrill(rows)}" data-title="${esc(rep)} · ${esc(label)}" data-kind="outbound"`;
+    return `<tr>
+      <td class="name-cell">${esc(rep)}</td>
+      <td class="num-col tnum clickable" ${cell(newRows,"ติดตาม Lead ใหม่")}>${newRows.length}</td>
+      <td class="num-col tnum clickable" ${cell(oldRows,"ติดตาม Lead เก่า")}>${oldRows.length}</td>
+      <td class="num-col tnum clickable" ${cell(mine,"รวมการติดต่อทั้งหมด")}>${mine.length}</td>
+      <td class="num-col tnum clickable" ${cell(closeRows,"ปิดการขาย")}>${closeRows.length}</td>
+      <td class="num-col tnum clickable" ${cell(pendingRows,"ติดตามต่อ")}>${pendingRows.length}</td>
+      <td class="num-col tnum clickable" ${cell(lostRows,"หลุด/ปิดเคส")}>${lostRows.length}</td>
+      <td>
+        <div class="rep-mini">
+          <span ${cell(closeRows,"ปิดการขาย")}><i class="dot" style="background:var(--good)"></i>${closeRows.length}</span>
+          <span ${cell(pendingRows,"ติดตามต่อ")}><i class="dot" style="background:var(--warn)"></i>${pendingRows.length}</span>
+          <span ${cell(lostRows,"หลุด/ปิดเคส")}><i class="dot" style="background:var(--bad)"></i>${lostRows.length}</span>
+        </div>
+        <div class="rep-bar" title="ปิดการขาย ${closeRows.length} · ติดตามต่อ ${pendingRows.length} · หลุด ${lostRows.length}">
+          <span style="width:${closeRows.length/total*100}%;background:var(--good)"></span>
+          <span style="width:${pendingRows.length/total*100}%;background:var(--warn)"></span>
+          <span style="width:${lostRows.length/total*100}%;background:var(--bad)"></span>
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+}
+
+function statusPillHtml(r){
+  const meta = STATUS_META[r.followStatusKey] || STATUS_META.other;
+  return `<span class="pill ${meta.pill}">${esc(r.followStatusLabel)}</span>`;
+}
+function outboundPillHtml(r){
+  const meta = STATUS_META[r.statusKey] || STATUS_META.other;
+  return `<span class="pill ${meta.pill}">${esc(r.statusLabel)}</span>`;
+}
+
+function wireSearch(inputId, renderFn, rowsGetter){
+  document.getElementById(inputId).addEventListener("input", e => {
+    renderFn(rowsGetter(), e.target.value.trim().toLowerCase());
+  });
+}
+
+let lastInboundRows = [], lastOutboundOldRows = [];
+let INBOUND_SORTED = [], OUTBOUND_SORTED = [];
+const inboundPager = { page: 1, size: 10 };
+const outboundPager = { page: 1, size: 10 };
+
+function renderPagination(containerId, state, total, rerenderFn){
+  const el = document.getElementById(containerId);
+  const totalPages = state.size === Infinity ? 1 : Math.max(1, Math.ceil(total / state.size));
+  if (state.page > totalPages) state.page = totalPages;
+  if (state.page < 1) state.page = 1;
+  const start = total === 0 ? 0 : (state.page - 1) * state.size + 1;
+  const end = state.size === Infinity ? total : Math.min(state.page * state.size, total);
+  el.innerHTML = `
+    <span>แสดง ${total ? start : 0}–${end} จาก ${total} รายการ</span>
+    <div class="page-controls">
+      <select class="page-size-select">
+        <option value="10" ${state.size===10?"selected":""}>10 ต่อหน้า</option>
+        <option value="25" ${state.size===25?"selected":""}>25 ต่อหน้า</option>
+        <option value="50" ${state.size===50?"selected":""}>50 ต่อหน้า</option>
+        <option value="all" ${state.size===Infinity?"selected":""}>ทั้งหมด</option>
+      </select>
+      <button type="button" class="page-btn" data-dir="-1" ${state.page<=1?"disabled":""}>‹</button>
+      <span class="page-num">หน้า ${state.page} / ${totalPages}</span>
+      <button type="button" class="page-btn" data-dir="1" ${state.page>=totalPages?"disabled":""}>›</button>
+    </div>`;
+  el.querySelector(".page-size-select").addEventListener("change", e => {
+    state.size = e.target.value === "all" ? Infinity : parseInt(e.target.value, 10);
+    state.page = 1;
+    rerenderFn();
+  });
+  el.querySelectorAll(".page-btn").forEach(btn => {
+    btn.addEventListener("click", () => { state.page += parseInt(btn.dataset.dir, 10); rerenderFn(); });
+  });
+}
+
+function renderInboundTable(inbound, term){
+  lastInboundRows = inbound;
+  document.getElementById("inbound-count-pill").textContent = inbound.length + " รายการ";
+  const filtered = term ? inbound.filter(r => (r.customerName+r.projectName).toLowerCase().includes(term)) : inbound;
+  INBOUND_SORTED = filtered.slice().sort((a,b)=> (b.date+b.time).localeCompare(a.date+a.time));
+  renderInboundPage();
+}
+
+function renderInboundPage(){
+  const total = INBOUND_SORTED.length;
+  const totalPages = inboundPager.size === Infinity ? 1 : Math.max(1, Math.ceil(total / inboundPager.size));
+  if (inboundPager.page > totalPages) inboundPager.page = totalPages;
+  const startIdx = inboundPager.size === Infinity ? 0 : (inboundPager.page - 1) * inboundPager.size;
+  const pageRows = inboundPager.size === Infinity ? INBOUND_SORTED : INBOUND_SORTED.slice(startIdx, startIdx + inboundPager.size);
+  const tbody = document.getElementById("inbound-table-body");
+  if (!pageRows.length){
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-note">ไม่พบ Lead ตามเงื่อนไข</td></tr>`;
+  } else {
+    tbody.innerHTML = pageRows.map((r,i) => {
+      const noteParts = [];
+      if (r.followDetail) noteParts.push(`ผลติดตาม (${esc(r.followRep||"-")}): ${esc(r.followDetail)}`);
+      noteParts.push(`บันทึกแรกเข้า: ${esc(r.detail || "-")}`);
+      return `<tr>
+        <td class="tnum">${esc(fmtTime(r.time))}</td>
+        <td>${esc(r.projectName)}</td>
+        <td class="name-cell">${esc(r.customerName)}<div class="sub">${esc(r.channelName)}</div></td>
+        <td><span class="grade-badge">${esc(r.grade||"-")}</span></td>
+        <td>${esc(r.contactType||"-")}</td>
+        <td>${statusPillHtml(r)}</td>
+        <td>${esc(r.followRep || "—")}</td>
+        <td><button class="detail-link" data-row="ib-${i}">รายละเอียด</button></td>
+      </tr>
+      <tr class="detail-row" id="ib-${i}" hidden><td colspan="8">${noteParts.join("\n\n")}</td></tr>`;
+    }).join("");
+    bindDetailToggles(tbody);
+  }
+  renderPagination("inbound-pagination", inboundPager, total, renderInboundPage);
+}
+
+function renderOutboundTable(outboundOld, term){
+  lastOutboundOldRows = outboundOld;
+  document.getElementById("outbound-count-pill").textContent = outboundOld.length + " รายการ";
+  const filtered = term ? outboundOld.filter(r => (r.customerName+r.projectName).toLowerCase().includes(term)) : outboundOld;
+  OUTBOUND_SORTED = filtered.slice().sort((a,b)=> (b.date+b.time).localeCompare(a.date+a.time));
+  renderOutboundPage();
+}
+
+function renderOutboundPage(){
+  const total = OUTBOUND_SORTED.length;
+  const totalPages = outboundPager.size === Infinity ? 1 : Math.max(1, Math.ceil(total / outboundPager.size));
+  if (outboundPager.page > totalPages) outboundPager.page = totalPages;
+  const startIdx = outboundPager.size === Infinity ? 0 : (outboundPager.page - 1) * outboundPager.size;
+  const pageRows = outboundPager.size === Infinity ? OUTBOUND_SORTED : OUTBOUND_SORTED.slice(startIdx, startIdx + outboundPager.size);
+  const tbody = document.getElementById("outbound-table-body");
+  if (!pageRows.length){
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-note">ไม่พบรายการ Lead เก่าตามเงื่อนไข</td></tr>`;
+  } else {
+    tbody.innerHTML = pageRows.map((r,i) => `<tr>
+        <td class="tnum">${esc(fmtTime(r.time))}</td>
+        <td>${esc(r.projectName)}</td>
+        <td class="name-cell">${esc(r.customerName)}</td>
+        <td><span class="grade-badge">${esc(r.grade||"-")}</span></td>
+        <td>${esc(r.contactType||"-")}</td>
+        <td>${outboundPillHtml(r)}</td>
+        <td>${esc(r.createBy||"—")}</td>
+        <td><button class="detail-link" data-row="ob-${i}">รายละเอียด</button></td>
+      </tr>
+      <tr class="detail-row" id="ob-${i}" hidden><td colspan="8">${esc(r.detail || "-")}</td></tr>`
+    ).join("");
+    bindDetailToggles(tbody);
+  }
+  renderPagination("outbound-pagination", outboundPager, total, renderOutboundPage);
+}
+
+function bindDetailToggles(tbody){
+  tbody.querySelectorAll(".detail-link").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const row = document.getElementById(btn.dataset.row);
+      row.hidden = !row.hidden;
+      btn.textContent = row.hidden ? "รายละเอียด" : "ซ่อนรายละเอียด";
+    });
+  });
+}
+
+/* ---------- filter wiring ---------- */
+["f-date","f-project","f-rep"].forEach(id => {
+  document.getElementById(id).addEventListener("change", e => {
+    const key = id === "f-date" ? "date" : id === "f-project" ? "project" : "rep";
+    filters[key] = e.target.value;
+    inboundPager.page = 1;
+    outboundPager.page = 1;
+    render();
+  });
+});
+document.getElementById("inbound-search").addEventListener("input", e => {
+  const { inboundEnriched } = computeDerived(ACTIVITIES);
+  inboundPager.page = 1;
+  renderInboundTable(applyFilters(inboundEnriched), e.target.value.trim().toLowerCase());
+});
+document.getElementById("outbound-search").addEventListener("input", e => {
+  const { outboundEnriched } = computeDerived(ACTIVITIES);
+  const oldOnes = applyFilters(outboundEnriched).filter(r=>!r.isNewLead);
+  outboundPager.page = 1;
+  renderOutboundTable(oldOnes, e.target.value.trim().toLowerCase());
+});
+
+/* ---------- toast ---------- */
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove("show"), 3200);
+}
+
+/* ---------- data load ---------- */
+function refreshFooter(){
+  document.getElementById("footer-updated").textContent = "อัปเดตล่าสุด: " + new Date().toLocaleString("th-TH");
+}
+
+function onActivitiesLoaded(rows, mode){
+  ACTIVITIES = rows;
+  populateFilters();
+  render();
+  refreshFooter();
+  const badge = document.getElementById("data-badge");
+  if (mode === "sample"){
+    badge.textContent = "โหมดตัวอย่าง (อ่านอย่างเดียว)";
+    ["upload-both-btn","clear-data-btn"].forEach(id => {
+      const b = document.getElementById(id);
+      b.disabled = true;
+      b.title = "ต้องเปิดฐานข้อมูลที่แชร์ของหน้านี้ก่อนจึงจะใช้งานได้";
+    });
+  } else if (!rows.length){
+    badge.textContent = "ยังไม่มีข้อมูล — กรุณานำเข้าไฟล์";
+  } else {
+    badge.textContent = rows.length + " กิจกรรมสะสมทั้งหมด";
+  }
+}
+
+let unsubscribeActivities = null;
+function subscribeActivities(){
+  if (unsubscribeActivities){ unsubscribeActivities(); unsubscribeActivities = null; }
+  unsubscribeActivities = dbApi.collection("activities").limit(1000).onSnapshot(
+    snap => onActivitiesLoaded(snap.docs.map(d=>d.data()), "db"),
+    () => {}
+  );
+}
+
+async function initDb(){
+  try{
+    dbApi = await claude.use("db");
+  }catch(e){ dbApi = null; }
+  if (!dbApi){
+    onActivitiesLoaded(SAMPLE_DATA.slice(), "sample");
+    return;
+  }
+  try{
+    const snap = await dbApi.collection("activities").limit(1000).get();
+    onActivitiesLoaded(snap.docs.map(d => d.data()), "db");
+  }catch(e){
+    onActivitiesLoaded(SAMPLE_DATA.slice(), "sample");
+    return;
+  }
+  subscribeActivities();
+}
+
+/* ---------- upload ---------- */
+/* Writes many docs concurrently (bounded worker pool) instead of one-at-a-time,
+   so an import of dozens of rows takes roughly total/concurrency round-trips, not `total`. */
+async function writeRowsConcurrently(rows, expectedSource, onProgress, concurrency){
+  const total = rows.length;
+  let nextIndex = 0, completed = 0, added = 0, failed = 0, mismatched = 0;
+  async function worker(){
+    while (true){
+      const i = nextIndex++;
+      if (i >= total) return;
+      const row = rows[i];
+      if (expectedSource && row.source !== expectedSource) mismatched++;
+      let ok = false;
+      for (let attempt = 0; attempt < 2 && !ok; attempt++){
+        try{
+          await dbApi.collection("activities").doc(row.id).set(row);
+          ok = true;
+        }catch(err){
+          if (attempt === 0 && err && err.code === "resource_exhausted"){
+            await new Promise(r => setTimeout(r, 250 + Math.random()*250));
+          }
+        }
+      }
+      if (ok) added++; else failed++;
+      completed++;
+      onProgress(completed, total);
+    }
+  }
+  const workerCount = Math.max(1, Math.min(concurrency, total));
+  await Promise.all(Array.from({ length: workerCount }, worker));
+  return { added, failed, mismatched };
+}
+
+function setBusy(busy){
+  const badge = document.getElementById("data-badge");
+  badge.classList.toggle("busy", busy);
+  ["upload-both-btn","clear-data-btn"].forEach(id => {
+    document.getElementById(id).disabled = busy;
+  });
+}
+
+function mergeById(existingRows, incomingRows){
+  const map = new Map(existingRows.map(r => [r.id, r]));
+  incomingRows.forEach(r => map.set(r.id, r));
+  return Array.from(map.values());
+}
+
+async function handleUploadFiles(files, expectedSource){
+  if (!files.length) return;
+  const typeLabel = expectedSource ? (expectedSource === "inbound" ? "Inbound" : "Outbound") : "ที่เลือก";
+  const badge = document.getElementById("data-badge");
+
+  // Parse locally first — no network involved, so this is near-instant.
+  let parsed = [], readFailed = 0;
+  for (const file of files){
+    try{
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(ws, { raw:false, defval:"" });
+      parsed = parsed.concat(json.map(normalizeRawRow).filter(r => r.customerId && r.date));
+    }catch(err){ readFailed++; }
+  }
+  if (!parsed.length){
+    toast(readFailed ? "อ่านไฟล์ไม่สำเร็จ ตรวจสอบรูปแบบไฟล์" : "ไม่พบข้อมูลที่นำเข้าได้ในไฟล์นี้");
+    return;
+  }
+
+  // 1) Show the result on screen right away — same feel as "attach file, press Display".
+  const merged = mergeById(ACTIVITIES, parsed);
+  onActivitiesLoaded(merged, dbApi ? "db" : "sample");
+
+  if (!dbApi){
+    toast(`แสดงผล ${parsed.length} รายการแล้ว (โหมดตัวอย่าง — ยังไม่ได้บันทึกขึ้นระบบที่แชร์)`);
+    return;
+  }
+
+  // 2) Persist to the shared database in the background so other viewers see it too.
+  //    The screen above is already showing the result, so this no longer blocks anything visible.
+  setBusy(true);
+  if (unsubscribeActivities){ unsubscribeActivities(); unsubscribeActivities = null; }
+  const result = await writeRowsConcurrently(parsed, expectedSource, (done, n) => {
+    badge.textContent = `${merged.length} กิจกรรมสะสมทั้งหมด · กำลังบันทึกขึ้นระบบ ${done}/${n}`;
+  }, 8);
+
+  try{
+    const snap = await dbApi.collection("activities").limit(1000).get();
+    onActivitiesLoaded(snap.docs.map(d => d.data()), "db");
+  }catch(e){ /* live subscription below will still catch up */ }
+  subscribeActivities();
+  setBusy(false);
+
+  let msg;
+  if (expectedSource){
+    msg = `บันทึกไฟล์ ${typeLabel} ขึ้นระบบแล้ว ${result.added} รายการ`;
+    if (result.mismatched) msg += ` — พบ ${result.mismatched} แถวที่ข้อมูลดูเหมือนเป็น${expectedSource==="inbound"?"Outbound":"Inbound"} โปรดตรวจสอบไฟล์ที่เลือก`;
+  } else {
+    const inCount = parsed.filter(r => r.source === "inbound").length;
+    const outCount = parsed.filter(r => r.source === "outbound").length;
+    msg = `บันทึกขึ้นระบบแล้ว ${result.added} รายการ (Inbound ${inCount} · Outbound ${outCount})`;
+  }
+  if (result.failed) msg += ` (ผิดพลาด ${result.failed})`;
+  toast(msg);
+}
+document.getElementById("upload-both-btn").addEventListener("click", () => {
+  if (!dbApi) return;
+  document.getElementById("upload-both-input").click();
+});
+document.getElementById("upload-both-input").addEventListener("change", async (e) => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = "";
+  await handleUploadFiles(files, null);
+});
+/* ---------- clear data ---------- */
+document.getElementById("clear-data-btn").addEventListener("click", () => {
+  if (!dbApi) return;
+  const ids = ACTIVITIES.map(r => r.id).filter(Boolean);
+  if (!ids.length){ toast("ไม่มีข้อมูลให้เคลียร์"); return; }
+  openConfirm(
+    `ต้องการลบข้อมูลกิจกรรมทั้งหมด ${ids.length} รายการออกจากฐานข้อมูลที่แชร์ของหน้านี้ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้ และมีผลกับทุกคนที่เปิดหน้านี้`,
+    async () => {
+      // 1) Clear the screen instantly — don't make the user watch the deletes happen.
+      const idsSet = new Set(ids);
+      onActivitiesLoaded(ACTIVITIES.filter(r => !idsSet.has(r.id)), "db");
+
+      // 2) Remove from the shared database in the background.
+      setBusy(true);
+      if (unsubscribeActivities){ unsubscribeActivities(); unsubscribeActivities = null; }
+      const badge = document.getElementById("data-badge");
+      let ok = 0, fail = 0, nextIdx = 0, done = 0;
+      async function deleteWorker(){
+        while (true){
+          const i = nextIdx++;
+          if (i >= ids.length) return;
+          try{ await dbApi.collection("activities").doc(ids[i]).delete(); ok++; }
+          catch(e){ fail++; }
+          done++;
+          badge.textContent = `กำลังลบออกจากระบบ… ${done}/${ids.length}`;
+        }
+      }
+      await Promise.all(Array.from({ length: Math.max(1, Math.min(8, ids.length)) }, deleteWorker));
+      try{
+        const snap = await dbApi.collection("activities").limit(1000).get();
+        onActivitiesLoaded(snap.docs.map(d => d.data()), "db");
+      }catch(e){}
+      subscribeActivities();
+      setBusy(false);
+      toast(fail ? `ลบแล้ว ${ok} รายการ (ผิดพลาด ${fail})` : `ลบข้อมูลทั้งหมด ${ok} รายการเรียบร้อย`);
+    }
+  );
+});
+
+/* ---------- go ---------- */
+initDb();
+
+})();
+</script>
