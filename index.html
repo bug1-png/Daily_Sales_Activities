@@ -103,11 +103,11 @@
   table.data{width:100%;border-collapse:collapse;min-width:560px;}
   table.data th{background:var(--surface-2);color:var(--muted);font-weight:600;font-size:11.5px;
     text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:9px 12px;position:sticky;top:0;
-    border-bottom:1px solid var(--border);white-space:nowrap;}
+    border-bottom:1px solid var(--border);white-space:normal;line-height:1.4;}
   table.data td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;font-size:13px;}
   table.data tbody tr:last-child td{border-bottom:none;}
   table.data tbody tr:hover{background:var(--surface-2);}
-  td.num, th.num{text-align:right;}
+  table.data td.num, table.data th.num{text-align:right;}
   td.detail{max-width:340px;white-space:pre-wrap;color:var(--ink);}
   td.name{white-space:nowrap;}
   .muted{color:var(--muted);}
@@ -244,7 +244,7 @@
         <div class="chart-wrap"><canvas id="inboundProjectChart"></canvas></div>
         <div class="table-scroll">
           <table class="data" id="inboundProjectTable">
-            <thead><tr><th>โครงการ</th><th class="num">Lead เข้ามา</th><th class="num">Lead ไม่ซ้ำ</th><th class="num">รอติดตามต่อ</th><th>สถานะ</th></tr></thead>
+            <thead><tr><th>โครงการ</th><th class="num">Lead เข้ามา</th><th class="num">Lead ไม่ซ้ำ</th><th class="num">ติดต่อแล้ว (Outbound)</th><th class="num">รอติดตามต่อ</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -455,14 +455,20 @@
   ];
 
   function showDetail(row, kind){
-    var predict = predictClose(row);
+    // For an Inbound record with no human note of its own, show the score /
+    // recommendation / fields from the rep's latest Outbound call instead —
+    // that's the real account of what happened. Name, project, channel and
+    // the timeline below still describe the record actually clicked.
+    var eff = (kind === 'inbound') ? effectiveInboundRow(row) : row;
+    var predict = predictClose(eff);
     var scoreColor = predict.label === 'สูง' ? 'var(--success)' : predict.label === 'กลาง' ? 'var(--warning)' : 'var(--danger)';
     var mobile = (row.CustomerMobile || '').toString().replace(/^'/, '');
 
     document.getElementById('detailName').textContent = fullName(row) + (mobile ? ' · ' + mobile : '');
     document.getElementById('detailSub').textContent =
       (row.ProjectName || '-') + ' · ' + (kind === 'inbound' ? 'Inbound' : 'Outbound') + ' · ' +
-      channelOf(row) + ' · ' + row.ContactDate + ' ' + row.ContactTime;
+      channelOf(row) + ' · ' + row.ContactDate + ' ' + row.ContactTime +
+      (eff !== row ? ' · 📞 อัปเดตจาก Outbound ล่าสุด (' + eff.ContactDate + ')' : '');
 
     document.getElementById('detailScore').innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">' +
@@ -474,10 +480,10 @@
       '<ul class="reason-list">' + predict.reasons.map(function(r){ return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>';
 
     document.getElementById('detailReco').innerHTML =
-      '<strong>💡 คำแนะนำการติดตาม:</strong> ' + esc(recommendAction(row));
+      '<strong>💡 คำแนะนำการติดตาม:</strong> ' + esc(recommendAction(eff));
 
     var fields = DETAIL_FIELD_LABELS
-      .map(function(f){ return [f[1], row[f[0]]]; })
+      .map(function(f){ return [f[1], eff[f[0]]]; })
       .filter(function(f){ return f[1]; });
     document.getElementById('detailFields').innerHTML = fields.length
       ? fields.map(function(f){
@@ -829,17 +835,28 @@
         if (!isHuman(rep)) return;
         var stamp = (r.ContactDate || '') + ' ' + (r.ContactTime || '');
         var cur = map[r.CustomerID];
-        if (!cur || stamp >= cur.stamp) map[r.CustomerID] = { rep: rep, stamp: stamp };
+        if (!cur || stamp >= cur.stamp) map[r.CustomerID] = { rep: rep, stamp: stamp, row: r };
       });
     });
     customerRepMap = map;
   }
 
-  function inboundRepFor(row){
+  // When an Inbound lead was auto-created (Web Site / Contact Center API —
+  // no human has logged a note on the Inbound record itself), the real
+  // account of what happened lives on the sales rep's most recent Outbound
+  // call for that same customer. Fall back to that record for status,
+  // predicted score, follow-up flag and detail text; keep the Inbound row's
+  // own data whenever a human already logged it directly.
+  function effectiveInboundRow(row){
     var own = row.UpdateBy || row.CreateBy;
-    if (isHuman(own)) return repDisplayName(own);
+    if (isHuman(own)) return row;
     var mapped = row.CustomerID && customerRepMap[row.CustomerID];
-    return repDisplayName(mapped ? mapped.rep : own);
+    return (mapped && mapped.row) ? mapped.row : row;
+  }
+
+  function inboundRepFor(row){
+    var eff = effectiveInboundRow(row);
+    return repDisplayName(eff.UpdateBy || eff.CreateBy);
   }
 
   function allRowsForCustomer(customerId){
@@ -1142,14 +1159,23 @@
     var byProject = {};
     inboundRows.forEach(function(r){
       var p = r.ProjectName || '(ไม่ระบุโครงการ)';
-      byProject[p] = byProject[p] || { total:0, uniq:{}, pending:0 };
+      byProject[p] = byProject[p] || { total:0, uniq:{} };
       byProject[p].total++;
       if (r.CustomerID) byProject[p].uniq[r.CustomerID] = 1;
-      // FollowUp === 'Yes' means the record still needs further follow-up
-      // (matches the "🔄 ติดตามต่อ" badge used in the feedback/detail tables).
-      if (/^y/i.test((r.FollowUp||'').toString())) byProject[p].pending++;
     });
+    // "ติดต่อแล้ว" / "รอติดตามต่อ" are counted per unique customer (not per
+    // contact row) and based on a plain, verifiable fact — does this
+    // customer have an Outbound call logged at all — rather than the
+    // Inbound record's own FollowUp flag, which is set once at lead
+    // creation and never updated afterwards.
     var projects = Object.keys(byProject).sort(function(a,b){ return byProject[b].total - byProject[a].total; });
+    projects.forEach(function(p){
+      var d = byProject[p];
+      d.contacted = 0; d.pending = 0;
+      Object.keys(d.uniq).forEach(function(cid){
+        if (customerRepMap[cid]) d.contacted++; else d.pending++;
+      });
+    });
 
     var tbody = document.querySelector('#inboundProjectTable tbody');
     if (!projects.length) {
@@ -1157,11 +1183,10 @@
     } else {
       tbody.innerHTML = projects.map(function(p){
         var d = byProject[p];
-        var pct = d.total ? Math.round(d.pending/d.total*100) : 0;
         return '<tr><td>' + esc(p) + '</td><td class="num">' + fmtInt(d.total) + '</td>' +
           '<td class="num">' + fmtInt(Object.keys(d.uniq).length) + '</td>' +
-          '<td class="num">' + fmtInt(d.pending) + '</td>' +
-          '<td>' + pct + '% รอติดตามต่อ</td></tr>';
+          '<td class="num">' + fmtInt(d.contacted) + '</td>' +
+          '<td class="num">' + fmtInt(d.pending) + '</td></tr>';
       }).join('');
     }
 
@@ -1264,17 +1289,21 @@
       return;
     }
     tbody.innerHTML = rows.map(function(r, i){
-      var o = parseOutcome(r);
+      var eff = effectiveInboundRow(r);
+      var o = parseOutcome(eff);
+      var fromOutbound = eff !== r;
+      var detailCell = (fromOutbound ? '<span class="badge grade-none" style="margin-bottom:4px;">📞 อัปเดตจาก Outbound ล่าสุด (' + esc(eff.ContactDate) + ')</span><br>' : '') +
+        detailPreviewCell(eff.ContactDetail, 90);
       return '<tr class="clickable-row" data-idx="' + i + '">' +
         '<td class="name">' + esc(r.ContactDate) + '<br><span class="muted">' + esc(r.ContactTime) + '</span></td>' +
         '<td>' + esc(r.ProjectName) + '</td>' +
         '<td class="name">' + esc(fullName(r)) + (r.CustomerMobile ? '<br><span class="muted">'+esc(r.CustomerMobile)+'</span>' : '') + '</td>' +
         '<td>' + esc(channelOf(r)) + '</td>' +
         '<td>' + outcomeBadge(o) + '</td>' +
-        '<td>' + predictBadge(r) + '</td>' +
-        '<td>' + followBadge(r.FollowUp) + '</td>' +
+        '<td>' + predictBadge(eff) + '</td>' +
+        '<td>' + followBadge(eff.FollowUp) + '</td>' +
         '<td>' + esc(inboundRepFor(r)) + '</td>' +
-        '<td class="detail">' + detailPreviewCell(r.ContactDetail, 90) + '</td>' +
+        '<td class="detail">' + detailCell + '</td>' +
         '</tr>';
     }).join('');
   }
