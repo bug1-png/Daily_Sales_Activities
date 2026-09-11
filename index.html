@@ -186,6 +186,14 @@
     border-radius:50%;background:var(--accent);}
   .timeline-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--muted);}
   .timeline-detail{font-size:13px;white-space:pre-wrap;margin-top:4px;color:var(--ink);}
+
+  td.ai-cell{max-width:240px;font-size:12.5px;line-height:1.5;white-space:pre-wrap;}
+  .btn-ai{font:inherit;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px;
+    border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);cursor:pointer;white-space:nowrap;}
+  .btn-ai:hover{filter:brightness(1.04);}
+  .btn-ai:disabled{opacity:.6;cursor:default;}
+  .timeline-item.clickable-row{cursor:pointer;padding:4px 6px 4px 0;margin-left:-6px;border-radius:8px;}
+  .timeline-item.clickable-row:hover{background:var(--surface-2);}
 </style>
 
 <div class="app">
@@ -297,8 +305,9 @@
         <span class="hint" id="outboundDetailHint"></span>
       </div>
       <div class="toolbar">
-        <select id="outboundRepFilter"><option value="">ทุกพนักงาน</option></select>
+        <select id="outboundProjectFilter"><option value="">ทุกโครงการ</option></select>
         <select id="outboundChannelFilter"><option value="">ทุกช่องทาง</option></select>
+        <select id="outboundRepFilter"><option value="">ทุกพนักงาน</option></select>
         <select id="outboundGradeFilter"><option value="">ทุกสถานะ</option></select>
         <input type="text" id="outboundSearch" placeholder="ค้นหาชื่อลูกค้า / เบอร์โทร / รายละเอียด…" />
       </div>
@@ -318,15 +327,20 @@
         <h2>สรุปผลงานพนักงานขายรายวัน</h2>
         <span class="hint">Inbound ที่ติดตาม + Outbound ที่โทรออก ต่อคน ต่อวันที่เลือก</span>
       </div>
+      <div class="toolbar">
+        <select id="repSummaryProjectFilter"><option value="">ทุกโครงการ</option></select>
+        <select id="repSummaryRepFilter"><option value="">ทุกพนักงาน</option></select>
+      </div>
       <div class="table-scroll">
         <table class="data" id="repSummaryTable">
           <thead><tr>
             <th>วันที่</th><th>โครงการ</th><th>พนักงานขาย</th><th class="num">Inbound ที่ติดตาม</th><th class="num">Outbound โทรออก</th>
-            <th class="num">รวมกิจกรรม</th><th class="num">ปิดการขาย (A)</th><th>สัดส่วนผล</th>
+            <th class="num">รวมกิจกรรม</th><th class="num">ปิดการขาย (A)</th><th>สัดส่วนผล</th><th>สรุปด้วย AI</th>
           </tr></thead>
           <tbody></tbody>
         </table>
       </div>
+      <div class="hint" style="margin-top:8px;">💡 คลิกที่แถวเพื่อดูรายชื่อลูกค้าที่ติดต่อในวันนั้น</div>
     </section>
   </main>
 
@@ -358,6 +372,20 @@
       <div class="detail-fields" id="detailFields"></div>
       <div class="timeline-label">ประวัติการติดต่อทั้งหมด (Timeline)</div>
       <div class="detail-timeline" id="detailTimeline"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="summaryOverlay" hidden>
+    <div class="modal-box detail-box">
+      <div class="detail-head">
+        <div>
+          <div class="detail-name" id="summaryName"></div>
+          <div class="detail-sub" id="summarySub"></div>
+        </div>
+        <button type="button" class="icon-close" id="summaryClose" aria-label="ปิด">✕</button>
+      </div>
+      <div class="timeline-label">รายชื่อลูกค้าที่ติดต่อ (คลิกเพื่อดูรายละเอียด)</div>
+      <div class="detail-timeline" id="summaryList"></div>
     </div>
   </div>
 </div>
@@ -472,6 +500,101 @@
     if (e.target === this) this.hidden = true;
   });
 
+  var lastSummaryRows = [];
+
+  function showRepSummaryDetail(group){
+    document.getElementById('summaryName').textContent = group.rep;
+    document.getElementById('summarySub').textContent =
+      group.project + ' · ' + group.date + ' · รวม ' + (group.inbound + group.outbound) + ' รายการ';
+    lastSummaryRows = group.rows;
+    document.getElementById('summaryList').innerHTML = group.rows.length
+      ? group.rows.map(function(item, i){
+          var r = item.row;
+          var o = parseOutcome(r);
+          return '<div class="timeline-item clickable-row" data-idx="' + i + '">' +
+            '<div class="timeline-meta">' +
+              '<span class="badge ' + (item.kind === 'inbound' ? 'follow-yes' : 'grade-none') + '">' + (item.kind === 'inbound' ? 'Inbound' : 'Outbound') + '</span>' +
+              '<strong>' + esc(fullName(r)) + '</strong> · ' + esc(r.ContactDate) + ' ' + esc(r.ContactTime) + ' · ' + outcomeBadge(o) + ' · ' + predictBadge(r) +
+            '</div>' +
+            '<div class="timeline-detail">' + esc(r.ContactDetail || '(ไม่มีบันทึกรายละเอียด)') + '</div>' +
+          '</div>';
+        }).join('')
+      : '<div class="muted">ไม่พบรายการติดต่อ</div>';
+    document.getElementById('summaryOverlay').hidden = false;
+  }
+  document.getElementById('summaryClose').addEventListener('click', function(){
+    document.getElementById('summaryOverlay').hidden = true;
+  });
+  document.getElementById('summaryOverlay').addEventListener('click', function(e){
+    if (e.target === this) this.hidden = true;
+  });
+  document.getElementById('summaryList').addEventListener('click', function(e){
+    var item = e.target.closest('.timeline-item[data-idx]');
+    if (!item) return;
+    var entry = lastSummaryRows[Number(item.getAttribute('data-idx'))];
+    if (!entry) return;
+    document.getElementById('summaryOverlay').hidden = true;
+    showDetail(entry.row, entry.kind);
+  });
+
+  // ---------------------------------------------------------------
+  // AI daily summary (sample capability) — generated on click, cached
+  // ---------------------------------------------------------------
+  var aiSummaryCache = {};
+  var repSummaryGroupsByKey = {};
+  var sampleApiPromise = null;
+
+  function getSampleApi(){
+    if (!sampleApiPromise) {
+      sampleApiPromise = (window.claude && window.claude.use) ? window.claude.use('sample') : Promise.resolve(null);
+    }
+    return sampleApiPromise;
+  }
+
+  function buildAiSummaryPrompt(group){
+    var gradeSummary = GRADE_ORDER.filter(function(g){ return group.grades[g]; })
+      .map(function(g){ return g + ':' + group.grades[g] + ' (' + gradeLabel(g) + ')'; }).join(', ');
+    var samples = group.rows.slice(0, 6)
+      .map(function(item){ return '- ' + (item.row.ContactDetail || '').toString().replace(/\s+/g, ' ').slice(0, 150); })
+      .filter(function(s){ return s.length > 2; });
+    var lines = [
+      'คุณเป็นผู้ช่วยหัวหน้าทีมขายอสังหาริมทรัพย์ สรุปผลการทำงานของพนักงานขายต่อไปนี้เป็นภาษาไทย 1-2 ประโยค กระชับ ตรงประเด็น เน้นสิ่งที่หัวหน้าทีมควรรู้หรือควรสั่งการต่อ ห้ามมีหัวข้อหรือ bullet ตอบเป็นข้อความล้วนเท่านั้น',
+      'พนักงานขาย: ' + group.rep,
+      'โครงการ: ' + group.project + ' | วันที่: ' + group.date,
+      'ติดตาม Inbound ' + group.inbound + ' ราย, โทร Outbound ' + group.outbound + ' ราย, ปิดการขาย(A) ' + (group.grades.A || 0) + ' ราย',
+      'แยกตามสถานะ: ' + (gradeSummary || 'ไม่มีข้อมูลสถานะ')
+    ];
+    if (samples.length) lines.push('ตัวอย่างบันทึกการติดตามบางส่วน:\n' + samples.join('\n'));
+    return lines.join('\n');
+  }
+
+  async function handleAiSummaryClick(btn){
+    var key = btn.getAttribute('data-key');
+    var group = repSummaryGroupsByKey[key];
+    if (!group) return;
+    btn.disabled = true;
+    btn.textContent = 'กำลังสรุป…';
+    try {
+      var sampleApi = await getSampleApi();
+      if (!sampleApi) {
+        btn.disabled = false;
+        btn.textContent = '✨ สรุปด้วย AI';
+        showToast('ฟีเจอร์สรุปด้วย AI ใช้ได้เฉพาะเมื่อเปิดหน้านี้ผ่านลิงก์ Artifact จริง', 'error');
+        return;
+      }
+      var result = await sampleApi(buildAiSummaryPrompt(group), { modelTier: 'quick' });
+      var text = (result && result.text || '').trim() || 'ไม่สามารถสรุปได้ในขณะนี้';
+      aiSummaryCache[key] = text;
+      var cell = btn.closest('td');
+      if (cell) cell.textContent = text;
+    } catch (err) {
+      console.error('AI summary failed', err);
+      btn.disabled = false;
+      btn.textContent = '✨ สรุปด้วย AI';
+      showToast('สรุปด้วย AI ไม่สำเร็จ ลองใหม่อีกครั้ง', 'error');
+    }
+  }
+
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
@@ -512,7 +635,7 @@
   function repDisplayName(name){
     if (!name) return 'ไม่ระบุ';
     if (!isHuman(name)) return 'ระบบอัตโนมัติ (ยังไม่มอบหมาย)';
-    return name.replace(/\s*-\s*$/, '').trim();
+    return name.toString().trim().replace(/\s*-\s*$/, '').trim().replace(/\s+/g, ' ');
   }
   function channelOf(row){
     var primary = row.ContactChannelName;
@@ -1186,13 +1309,16 @@
   function outboundRepOf(r){ return repDisplayName(r.CreateBy || r.UpdateBy); }
 
   function renderOutboundDetail(outboundRows){
+    var projects = Array.from(new Set(outboundRows.map(function(r){return r.ProjectName;}).filter(Boolean))).sort();
     var reps = Array.from(new Set(outboundRows.map(outboundRepOf))).sort();
     var channels = Array.from(new Set(outboundRows.map(channelOf))).sort();
+    fillSelect('outboundProjectFilter', projects, 'ทุกโครงการ');
     fillSelect('outboundRepFilter', reps, 'ทุกพนักงาน');
     fillSelect('outboundChannelFilter', channels, 'ทุกช่องทาง');
     fillSelect('outboundGradeFilter', GRADE_ORDER, 'ทุกสถานะ');
 
     var filters = {
+      project: document.getElementById('outboundProjectFilter').value,
       rep: document.getElementById('outboundRepFilter').value,
       repResolver: outboundRepOf,
       channel: document.getElementById('outboundChannelFilter').value,
@@ -1226,48 +1352,76 @@
     }).join('');
   }
 
+  var lastRepSummaryGroups = [];
+  var lastRepSummaryInbound = [];
+  var lastRepSummaryOutbound = [];
+
   function renderRepSummary(inboundRows, outboundRows){
+    lastRepSummaryInbound = inboundRows;
+    lastRepSummaryOutbound = outboundRows;
     var groups = {}; // key: date + '|' + project + '|' + rep
     function ensure(date, project, rep){
       var key = date + '|' + project + '|' + rep;
-      groups[key] = groups[key] || { date: date, project: project, rep: rep, inbound:0, outbound:0, grades:{} };
+      groups[key] = groups[key] || { key: key, date: date, project: project, rep: rep, inbound:0, outbound:0, grades:{}, rows:[] };
       return groups[key];
     }
     inboundRows.forEach(function(r){
       var rec = ensure(r.ContactDate || 'ไม่ระบุวันที่', r.ProjectName || '(ไม่ระบุโครงการ)', inboundRepFor(r));
       rec.inbound++;
+      rec.rows.push({ kind: 'inbound', row: r });
       var g = parseOutcome(r).grade;
       if (g) rec.grades[g] = (rec.grades[g]||0)+1;
     });
     outboundRows.forEach(function(r){
-      var rec = ensure(r.ContactDate || 'ไม่ระบุวันที่', r.ProjectName || '(ไม่ระบุโครงการ)', repDisplayName(r.CreateBy || r.UpdateBy));
+      var rec = ensure(r.ContactDate || 'ไม่ระบุวันที่', r.ProjectName || '(ไม่ระบุโครงการ)', outboundRepOf(r));
       rec.outbound++;
+      rec.rows.push({ kind: 'outbound', row: r });
       var g = parseOutcome(r).grade;
       if (g) rec.grades[g] = (rec.grades[g]||0)+1;
     });
-    var keys = Object.keys(groups).sort(function(a,b){
+    repSummaryGroupsByKey = groups;
+
+    var allProjects = Array.from(new Set(Object.keys(groups).map(function(k){ return groups[k].project; }))).sort();
+    var allReps = Array.from(new Set(Object.keys(groups).map(function(k){ return groups[k].rep; }))).sort();
+    fillSelect('repSummaryProjectFilter', allProjects, 'ทุกโครงการ');
+    fillSelect('repSummaryRepFilter', allReps, 'ทุกพนักงาน');
+    var projectFilter = document.getElementById('repSummaryProjectFilter').value;
+    var repFilter = document.getElementById('repSummaryRepFilter').value;
+
+    var keys = Object.keys(groups).filter(function(k){
+      var g = groups[k];
+      if (projectFilter && g.project !== projectFilter) return false;
+      if (repFilter && g.rep !== repFilter) return false;
+      return true;
+    }).sort(function(a,b){
       var ga = groups[a], gb = groups[b];
       if (gb.date !== ga.date) return gb.date.localeCompare(ga.date);
       if (ga.project !== gb.project) return ga.project.localeCompare(gb.project);
       return (gb.inbound+gb.outbound) - (ga.inbound+ga.outbound);
     });
+    lastRepSummaryGroups = keys.map(function(k){ return groups[k]; });
+
     var tbody = document.querySelector('#repSummaryTable tbody');
     if (!keys.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="muted">ไม่มีข้อมูลในช่วงที่เลือก</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="muted">ไม่มีข้อมูลในช่วงที่เลือก</td></tr>';
       return;
     }
-    tbody.innerHTML = keys.map(function(key){
+    tbody.innerHTML = keys.map(function(key, i){
       var d = groups[key];
       var total = d.inbound + d.outbound;
       var closed = d.grades.A || 0;
-      return '<tr><td class="name">' + esc(d.date) + '</td>' +
+      var aiCell = aiSummaryCache[key]
+        ? esc(aiSummaryCache[key])
+        : '<button type="button" class="btn-ai" data-key="' + esc(key) + '">✨ สรุปด้วย AI</button>';
+      return '<tr class="clickable-row" data-idx="' + i + '"><td class="name">' + esc(d.date) + '</td>' +
         '<td>' + esc(d.project) + '</td>' +
         '<td class="name">' + esc(d.rep) + '</td>' +
         '<td class="num">' + fmtInt(d.inbound) + '</td>' +
         '<td class="num">' + fmtInt(d.outbound) + '</td>' +
         '<td class="num">' + fmtInt(total) + '</td>' +
         '<td class="num">' + fmtInt(closed) + '</td>' +
-        '<td>' + miniBar(d.grades, total) + '<div style="margin-top:6px">' + gradeChips(d.grades) + '</div></td></tr>';
+        '<td>' + miniBar(d.grades, total) + '<div style="margin-top:6px">' + gradeChips(d.grades) + '</div></td>' +
+        '<td class="ai-cell">' + aiCell + '</td></tr>';
     }).join('');
   }
 
@@ -1312,9 +1466,14 @@
       renderInboundFeedback(scopedRows('inbound'));
     });
   });
-  ['outboundRepFilter','outboundChannelFilter','outboundGradeFilter','outboundSearch'].forEach(function(id){
+  ['outboundProjectFilter','outboundRepFilter','outboundChannelFilter','outboundGradeFilter','outboundSearch'].forEach(function(id){
     document.getElementById(id).addEventListener('input', function(){
       renderOutboundDetail(scopedRows('outbound'));
+    });
+  });
+  ['repSummaryProjectFilter','repSummaryRepFilter'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', function(){
+      renderRepSummary(lastRepSummaryInbound, lastRepSummaryOutbound);
     });
   });
 
@@ -1329,6 +1488,14 @@
     if (!tr) return;
     var row = lastOutboundDetailRows[Number(tr.getAttribute('data-idx'))];
     if (row) showDetail(row, 'outbound');
+  });
+  document.querySelector('#repSummaryTable tbody').addEventListener('click', function(e){
+    var aiBtn = e.target.closest('.btn-ai');
+    if (aiBtn) { handleAiSummaryClick(aiBtn); return; }
+    var tr = e.target.closest('tr[data-idx]');
+    if (!tr) return;
+    var group = lastRepSummaryGroups[Number(tr.getAttribute('data-idx'))];
+    if (group) showRepSummaryDetail(group);
   });
 
   initData();
